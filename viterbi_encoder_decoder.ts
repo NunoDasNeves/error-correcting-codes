@@ -1,4 +1,143 @@
 
+class BitArray {
+
+    length: number  // length in bits (not all numbers may be 'full' of bits
+    // Bits are stored right-to-left in each number, but numbers are stored left-to-right
+    // this makes sense because pushing/popping happens on the right of the array
+    // but << goes from the lowest bit to the highest
+    array: number[]
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    // javascript bitwise operators treat numbers as 32 bit integers
+    static BITS_PER_NUM = 32
+
+    constructor() {
+        this.length = 0
+        this.array = [ 0 ]
+    }
+
+    copy() : BitArray {
+        const newArr: BitArray = new BitArray()
+        newArr.length = this.length
+        newArr.array = this.array.map(a => a) // map copy
+        return newArr
+    }
+
+    static fromNumber(num: number, len:number): BitArray {
+
+        if (len > BitArray.BITS_PER_NUM) throw Error("Invalid len passed to BitArray.fromNumber")
+
+        const arr: BitArray = new BitArray()
+        arr.length = len
+        arr.array[0] = num
+        return arr
+    }
+
+    static fromAsciiString(s: string): BitArray {
+        let arr: BitArray = new BitArray()
+
+        for (let i = 0; i < s.length; ++i) {
+            // get the ascii code
+            let num: number = s.charCodeAt(i)
+            const numArr: BitArray = BitArray.fromNumber(num, 8)
+            arr = arr.concat(numArr)
+        }
+
+        return arr
+    }
+
+    // print as string of 1's and 0's
+    toString(): string {
+        let str: string = ''
+        for (let i: number = 0; i < this.length; ++i) {
+            str += this.getBit(i)
+        }
+        return str
+    }
+
+    toAsciiString(): string {
+        if (this.length % 8 != 0) throw Error("BitArray cannot be converted to ascii string")
+
+        let bytes: number[] = []
+
+        let b: number = 0 // number to hold the byte we're building
+        let i: number = 0 // 0 - length for getting bits
+        let j: number = 0 // 0 - 8      for pushing bits
+        for (; i < this.length; ++i) {
+
+            b |= this.getBit(i) << j
+
+            j = (j + 1) % 8
+            // if done with this byte, push it and start again
+            if (j == 0) {
+                bytes.push(b)
+                b = 0
+            }
+        }
+
+        const str: string = String.fromCharCode(...bytes)
+        return str
+    }
+
+    // return a new array that is the concatenation of this and arr
+    concat(arr: BitArray): BitArray {
+        // make a copy
+        const newArr: BitArray = this.copy()
+
+        // iterate through bits of new array, pushing them on
+        for (let i = 0; i < arr.length; ++i) {
+            newArr.pushBit(arr.getBit(i))
+        }
+
+        return newArr
+    }
+
+    // modify BitArray in place
+    // bit should be 1 or 0
+    pushBit(bit: number) {
+        // get index of last number
+        const lastArrayIndex = Math.trunc(this.length/BitArray.BITS_PER_NUM)
+        const nextBitIndex = this.length - lastArrayIndex * BitArray.BITS_PER_NUM
+        // check if there's space in the last number
+        if (nextBitIndex < BitArray.BITS_PER_NUM) {
+            // clear the bit
+            this.array[lastArrayIndex] &= ~(1 << nextBitIndex)
+            // set it
+            this.array[lastArrayIndex] |= (bit << nextBitIndex)
+        } else {
+            // append a new number, which just has the bit in it
+            this.array.push(bit)
+        }
+        this.length++
+    }
+
+    getBit(index: number): number {
+        if (index >= this.length) throw Error("Invalid index passed to getBit")
+        const arrayIndex = Math.trunc(index/BitArray.BITS_PER_NUM)
+        const bitIndex = index - arrayIndex * BitArray.BITS_PER_NUM
+        return (this.array[arrayIndex] >> bitIndex) & 1 // just the bit by itself, as a number
+    }
+
+    is(arr: BitArray): boolean {
+        // easy case
+        if (this.length != arr.length) return false
+
+        // clear extra bits
+        const lastArrayIndex = Math.trunc(this.length/BitArray.BITS_PER_NUM)
+        const nextBitIndex = this.length - lastArrayIndex * BitArray.BITS_PER_NUM
+        this.array[lastArrayIndex] &= ~((~0) << nextBitIndex)
+        arr.array[lastArrayIndex] &= ~((~0) << nextBitIndex)
+
+        // compare each number
+        for (let i: number = 0; i < this.length; ++i) {
+            if (this.array[i] != arr.array[i]) return false
+        }
+
+        return true
+    }
+}
+
+
 // convert a regular string to an array of bits for use with an Encoder
 function stringToBinaryArray(s: string): number[] {
     const ret: number[] = []
@@ -280,6 +419,21 @@ class Decoder {
 
 
 function testEncoder() {
+
+    /*
+    let test: BitArray = BitArray.fromNumber('a'.charCodeAt(0), 8)
+    console.log(test)
+    console.log(test.toString())
+
+    test = BitArray.fromAsciiString('abcd')
+    console.log(test)
+    console.log(test.toString())
+    test = test.concat(BitArray.fromAsciiString('e'))
+    console.log(test.toAsciiString())
+
+    console.log(BitArray.fromAsciiString("abcdefg Hey you!").toAsciiString())
+    */
+
     const inCode = stringToBinaryArray("Hello, Viterbi!")
 
     //console.log("in code length")
