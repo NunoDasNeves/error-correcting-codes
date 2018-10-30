@@ -1,168 +1,58 @@
 
-class BitArray {
+// convert a regular string to an array of bits for use with an Encoder
+function stringToBinaryArray(s: string): number[] {
+    const ret: number[] = []
 
-    length: number  // length in bits (not all numbers may be 'full' of bits
-    // Bits are stored right-to-left in each number, but numbers are stored left-to-right
-    // this makes sense because pushing/popping happens on the right of the array
-    // but << goes from the lowest bit to the highest
-    array: number[]
+    for(let i = 0; i < s.length; ++i) {
+        // get the ascii code
+        let num: number = s.charCodeAt(i)
 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
-    // javascript bitwise operators treat numbers as 32 bit integers
-    static BITS_PER_NUM = 32
-
-    constructor() {
-        this.length = 0
-        this.array = [ 0 ]
-    }
-
-    static from(arr: BitArray) : BitArray {
-        const newArr: BitArray = new BitArray()
-        newArr.length = arr.length
-        newArr.array = Array.from(arr.array)
-        return newArr
-    }
-
-    static fromNumber(num: number, len:number): BitArray {
-
-        if (len > BitArray.BITS_PER_NUM) throw Error("Invalid len passed to BitArray.fromNumber")
-
-        const arr: BitArray = new BitArray()
-        arr.length = len
-        arr.array[0] = num
-        return arr
-    }
-
-    static fromAsciiString(s: string): BitArray {
-        let arr: BitArray = new BitArray()
-
-        for (let i = 0; i < s.length; ++i) {
-            // get the ascii code
-            let num: number = s.charCodeAt(i)
-            const numArr: BitArray = BitArray.fromNumber(num, 8)
-            arr = arr.concat(numArr)
+        // for each bit, push an element on the return array
+        for (let j = 0; j < 8; ++j) {
+            ret.push((num >> j) & 1)
         }
-
-        return arr
     }
 
-    // print as string of 1's and 0's
-    toString(): string {
-        let str: string = ''
-        for (let i: number = 0; i < this.length; ++i) {
-            str += this.getBit(i)
-        }
-        return str
-    }
-
-    toAsciiString(): string {
-        if (this.length % 8 != 0) throw Error("BitArray cannot be converted to ascii string")
-
-        let bytes: number[] = []
-
-        let b: number = 0 // number to hold the byte we're building
-        let i: number = 0 // 0 - length for getting bits
-        let j: number = 0 // 0 - 8      for pushing bits
-        for (; i < this.length; ++i) {
-
-            b |= this.getBit(i) << j
-
-            j = (j + 1) % 8
-            // if done with this byte, push it and start again
-            if (j == 0) {
-                bytes.push(b)
-                b = 0
-            }
-        }
-
-        const str: string = String.fromCharCode(...bytes)
-        return str
-    }
-
-    // return a new array that is the concatenation of this and arr
-    concat(arr: BitArray): BitArray {
-        // make a copy
-        const newArr: BitArray = BitArray.from(this)
-
-        // iterate through bits of new array, pushing them on
-        for (let i = 0; i < arr.length; ++i) {
-            newArr.pushBit(arr.getBit(i))
-        }
-
-        return newArr
-    }
-
-    // modify BitArray in place
-    // bit should be 1 or 0
-    pushBit(bit: number) {
-        // get index of last number
-        const lastArrayIndex = Math.trunc(this.length/BitArray.BITS_PER_NUM)
-        const nextBitIndex = this.length - lastArrayIndex * BitArray.BITS_PER_NUM
-        // check if there's space in the last number
-        if (nextBitIndex < BitArray.BITS_PER_NUM) {
-            // clear the bit
-            this.array[lastArrayIndex] &= ~(1 << nextBitIndex)
-            // set it
-            this.array[lastArrayIndex] |= (bit << nextBitIndex)
-        } else {
-            // append a new number, which just has the bit in it
-            this.array.push(bit)
-        }
-        this.length++
-    }
-
-    getBit(index: number): number {
-        if (index >= this.length) throw Error("Invalid index passed to getBit")
-        const arrayIndex = Math.trunc(index/BitArray.BITS_PER_NUM)
-        const bitIndex = index - arrayIndex * BitArray.BITS_PER_NUM
-        return (this.array[arrayIndex] >> bitIndex) & 1 // just the bit by itself, as a number
-    }
-
-    setBit(index: number, bit: number) {
-        if (index >= this.length) throw Error("Invalid index passed to setBit")
-        const arrayIndex = Math.trunc(index/BitArray.BITS_PER_NUM)
-        const bitIndex = index - arrayIndex * BitArray.BITS_PER_NUM
-        // clear it
-        this.array[arrayIndex] &= ~(1 << bitIndex)
-        // set it
-        this.array[arrayIndex] |= ((bit & 1) << bitIndex)
-    }
-
-    // shift by 1
-    rightShift() {
-        if (this.length == 0) return
-        for (let i: number = 0; i < this.length; ++i) {
-            // we don't wanna lose bits off to the right for array indexes > 0
-            if (i > 0) {
-                // get bit that will be removed
-                const bit: number = this.array[i] & 1
-                // clear and set leftmost bit in previous array entry
-                this.array[i-1] &= ~(1 << (BitArray.BITS_PER_NUM - 1))
-                this.array[i-1] |= (bit << (BitArray.BITS_PER_NUM - 1))
-            }
-            this.array[i] = this.array[i] >> 1
-        }
-        this.length -= 1
-    }
-
-    is(arr: BitArray): boolean {
-        // easy case
-        if (this.length != arr.length) return false
-
-        // clear extra bits
-        const lastArrayIndex = Math.trunc(this.length/BitArray.BITS_PER_NUM)
-        const nextBitIndex = this.length - lastArrayIndex * BitArray.BITS_PER_NUM
-        this.array[lastArrayIndex] &= ~((~0) << nextBitIndex)
-        arr.array[lastArrayIndex] &= ~((~0) << nextBitIndex)
-
-        // compare each number
-        for (let i: number = 0; i < this.length; ++i) {
-            if (this.array[i] != arr.array[i]) return false
-        }
-
-        return true
-    }
+    return ret
 }
+
+// convert an array produced by a Decoder to a string
+function binaryArrayToString(bits: number[]): string {
+
+    const nums: number[] = []
+    // group array into arrays of 8 bits
+    for(let i = 0; i < bits.length; i+=8) {
+        let num: number = 0
+        // reconstruct the ascii code from the bits
+        for (let j = 0; j < 8 && j + i < bits.length; ++j) {
+            num |= (bits[j + i] << j)
+        }
+        nums.push(num)
+    }
+
+    return String.fromCharCode(...nums)
+}
+
+// convert an array of bits into a number
+// use intuitive ordering, so [ 1, 0 ] -> 2
+function arrayToNumber(bits: number[]): number {
+    let num: number = 0
+    for (let i: number = bits.length-1; i >= 0; --i) {
+        num |= bits[i] << i
+    }
+    return num
+}
+
+// convert a number into an array of bits of specified length
+// preserve intuitive ordering, so 2 -> [ 1, 0 ]
+function numberToArray(num: number, len:number): number[] {
+    let bits: number[] = []
+    for (let i: number = 0; i < len; ++i) {
+        bits.unshift((num >> i) & 1)
+    }
+    return bits
+}
+
 
 // A simple convolutional encoder
 class Encoder {
@@ -170,33 +60,31 @@ class Encoder {
     // input parameters
     n: number           // number of bits per output symbol
     K: number           // constraint length
-    gen: BitArray[]     // n binary generator polynomials of length K
-    input: BitArray     // string of input bits
+    gen: number[][]     // n binary generator polynomials of length K
+    input: number[]     // string of input bits
 
     // current state
     i: number           // the next output symbol will be the ith one
-    reg: BitArray       // K single bit shift registers
+    reg: number[]       // K single bit shift registers
 
     // history
-    states: BitArray[]  // stored states
-    outputs: BitArray[] // stored outputs
+    states: number[][]  // stored states
+    outputs: number[][] // stored outputs
 
-    constructor(n: number, K: number, gen: BitArray[], input: BitArray) {
+    constructor(n: number, K: number, gen: number[][], input: number[]) {
         this.n = n
         this.K = K
         this.gen = gen
         this.input = input
         this.i = 0
-        this.reg = BitArray.fromNumber(0, K)
-        this.states = new Array<BitArray>()
-        this.outputs = new Array<BitArray>()
+        this.reg = new Array<number>(K).fill(0)
+        this.states = new Array<number[]>()
+        this.outputs = new Array<number[]>()
     }
 
     // produce a simple example encoder
-    static example(input: BitArray = BitArray.fromAsciiString("example string")) {
-        const poly_1: BitArray = BitArray.fromNumber(7, 3)
-        const poly_2: BitArray = BitArray.fromNumber(5, 3)
-        return new Encoder(2, 3, [poly_1, poly_2], input)
+    static example(input: number[] = [1,0,1,1,0,0,0,1]) {
+        return new Encoder(2, 3, [[1,1,1], [1,0,1]], input)
     }
 
     // retrieve next output symbol and return it
@@ -208,25 +96,17 @@ class Encoder {
 
         //console.log(this.reg)
 
-        // update shift register
-        this.reg.rightShift()
-        this.reg.pushBit(this.input.getBit(this.i))
+        // update shift registers
+        this.reg.pop()
+        this.reg.unshift(this.input[this.i])
 
-        const out_symbol: BitArray = BitArray.fromNumber(0, this.n)
+        // output will be an array of bits
+        const out_symbol: number[] = new Array(this.n).fill(0)
 
         // for each output bit
         for (let j: number = 0; j < this.n; ++j) {
             // use the jth generator polynomial to produce the bit
-            let bit: number = 0
-            // for each coefficient (1 or 0)
-            for (let k: number = 0; k < this.K; ++k) {
-                // if 0, skip
-                if (this.gen[j].getBit(k) == 0) continue
-                // otherwise, add
-                bit += this.reg.getBit(k)
-            }
-            // set the bit. mod 2 implied but not necessary
-            out_symbol.setBit(j, bit/*&1*/)
+            out_symbol[j] = this.gen[j].reduce((acc, g, k) => g ? (acc + this.reg[k]) % 2 : acc, 0)
         }
 
         //console.log("state: "+this.reg)
@@ -234,8 +114,8 @@ class Encoder {
 
         // bookkeeping
         this.i++
-        this.states.push(BitArray.from(this.reg))
-        this.outputs.push(BitArray.from(out_symbol))
+        this.states.push(Array.from(this.reg))
+        this.outputs.push(Array.from(out_symbol))
 
         return out_symbol
     }
@@ -243,7 +123,6 @@ class Encoder {
 }
 
 // A Viterbi algorithm decoder
-    /*
 class Decoder {
 
     // input parameters
@@ -268,7 +147,7 @@ class Decoder {
     // bit is the bit that was most likely transitioned on to get to this state
     table: any[][]
 
-    constructor(n: number, K: number, gen: BitArray[], input: BitArray) {
+    constructor(n: number, K: number, gen: number[][], input: number[]) {
         this.n = n
         this.K = K
         this.N = Math.pow(2, K-1)
@@ -398,25 +277,10 @@ class Decoder {
     }
 }
 
-*/
+
 
 function testEncoder() {
-
-    /*
-    let test: BitArray = BitArray.fromNumber('a'.charCodeAt(0), 8)
-    console.log(test)
-    console.log(test.toString())
-
-    test = BitArray.fromAsciiString('abcd')
-    console.log(test)
-    console.log(test.toString())
-    test = test.concat(BitArray.fromAsciiString('e'))
-    console.log(test.toAsciiString())
-
-    console.log(BitArray.fromAsciiString("abcdefg Hey you!").toAsciiString())
-    */
-
-    const inCode: BitArray = BitArray.fromAsciiString("Hello, Viterbi!")
+    const inCode = stringToBinaryArray("Hello, Viterbi!")
 
     //console.log("in code length")
     //console.log(inCode.length)
@@ -424,7 +288,7 @@ function testEncoder() {
     const encoder = Encoder.example(inCode)
 
     // encode the thing, and flatten to a bitstring
-    let coded: BitArray = new BitArray()
+    let coded: number[] = []
     let i: number = 0
     for (
           let curr = encoder.next();
@@ -432,25 +296,22 @@ function testEncoder() {
           curr = encoder.next()) {
         i++
         coded = coded.concat(curr)
-        console.log(curr.toString())
     }
     //console.log("coded length")
     //console.log(coded.length)
 
     // some bit-errors
-    /*
     coded[1] = ~coded[1]
     coded[3] = ~coded[3]
     coded[14] = ~coded[13]
     coded[14] = ~coded[14]
     coded[21] = ~coded[21]
     coded[22] = ~coded[22]
-     */
     //coded[23] = ~coded[23] // this will cause an error as
 
-    //const decoder = Decoder.example(coded)
+    const decoder = Decoder.example(coded)
 
-    //console.log(binaryArrayToString(decoder.decode()))
+    console.log(binaryArrayToString(decoder.decode()))
 
 }
 
