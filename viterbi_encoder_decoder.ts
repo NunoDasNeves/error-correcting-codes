@@ -130,6 +130,7 @@ class BitArray {
 
     // shift by 1
     rightShift() {
+        if (this.length == 0) return
         for (let i: number = 0; i < this.length; ++i) {
             // we don't wanna lose bits off to the right for array indexes > 0
             if (i > 0) {
@@ -141,6 +142,7 @@ class BitArray {
             }
             this.array[i] = this.array[i] >> 1
         }
+        this.length -= 1
     }
 
     is(arr: BitArray): boolean {
