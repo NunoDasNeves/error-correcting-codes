@@ -9,10 +9,10 @@ export default {
   props: {
     input_string: {
         type: String,
-        default: "test string"
-    }
-  }
-}
+        default: 'test string',
+    },
+  },
+};
 </script>
 
 <style scoped lang="less">
