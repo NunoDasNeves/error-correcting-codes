@@ -1,6 +1,6 @@
 <template>
-  <div class="encoder">
-
+  <div class="home">
+    insert homepage here
   </div>
 </template>
 

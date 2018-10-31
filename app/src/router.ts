@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Encoder from './views/Encoder.vue';
+import Home from './views/Home.vue';
+import Encoder from './views/ConvolutionalEncoder.vue';
+import Decoder from './views/ViterbiDecoder.vue';
 
 Vue.use(Router);
 
@@ -11,7 +13,17 @@ export default new Router({
     {
       path: '/',
       name: 'home',
+      component: Home
+    },
+    {
+      path: '/encoder',
+      name: 'encoder',
       component: Encoder
+    },
+    {
+      path: '/decoder',
+      name: 'decoder',
+      component: Decoder
     }
   ],
 });
