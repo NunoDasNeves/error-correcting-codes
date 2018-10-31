@@ -1,20 +1,11 @@
 <template>
   <div id="app">
-    <Encoder/>
+    <div id="nav">
+      <router-link to="/">Home</router-link> |
+    </div>
+    <router-view/>
   </div>
 </template>
-
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Encoder from './views/Encoder.vue';
-
-@Component({
-  components: {
-    Encoder,
-  },
-})
-export default class App extends Vue {}
-</script>
 
 <style lang="less">
 #app {
