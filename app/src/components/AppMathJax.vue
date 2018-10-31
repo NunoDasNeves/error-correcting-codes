@@ -1,16 +1,16 @@
 <template>
-  <span ref="mathJaxEl">{{ data }}</span>
+  <span ref="mathJaxEl"><slot></slot></span>
 </template>
 
 <script type="text/javascript">
   export default {
-    props:['data'],
+    /*props:['data'],*/
 
-    watch: {
+    /*watch: {
       data () {
         this.renderMathJax()
       }
-    },
+    },*/
 
     methods: {
       renderMathJax () {
