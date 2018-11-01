@@ -19,6 +19,7 @@
   --color-gray: #d5d5d5;
   --color-light-gray: #eaeaea;
   --color-very-light-gray: #f9f9f9;
+  --color-invalid: #ff2211;
   // borders
   --border-dark: 1px solid var(--color-gray);
   --border: 1px solid var(--color-light-gray);
@@ -40,6 +41,7 @@
   --font-medium-mobile: 16px;
   --font-small: 16px;
   --font-small-mobile: 12px;
+  --font-monospace: monospace;
 }
 
 #app {
@@ -57,7 +59,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   color: rgba(0,0,0,.84);
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.9;
   font-family: -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 

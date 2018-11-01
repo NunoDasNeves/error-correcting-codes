@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="spoiler-bar">
-      <span v-on:click="() => {toggle = true}" class="spoiler-title">{{ title }}</span>
-      <i v-if="toggle" v-on:click="() => {toggle = false}" class="material-icons spoiler-close">close_circle</i>
+      <span v-on:click="() => {toggle = !toggle}" class="spoiler-title">{{ title }}</span>
+      <!--i v-show="toggle" v-on:click="() => {toggle = false}" class="material-icons spoiler-close">close_circle</i-->
     </div>
-    <div v-if="toggle" class="spoiler-content">
+    <div v-show="toggle" class="spoiler-content">
       <slot></slot>
     </div>
   </div>
@@ -26,6 +26,7 @@ export default Vue.extend({
 <style scoped>
 .spoiler-title {
   color:var(--color-theme);
+  cursor:pointer;
 }
 .spoiler-title:hover {
   color:var(--color-theme-light);
@@ -34,6 +35,7 @@ export default Vue.extend({
   display:flex;
   justify-content: space-between;
   align-items: center;
+  margin:5px 0;
 }
 .spoiler-close {
   width:24px;
@@ -45,6 +47,6 @@ export default Vue.extend({
 .spoiler-content {
   border:var(--border);
   border-radius:10px;
-  padding:10px;
+  padding:17px;
 }
 </style>

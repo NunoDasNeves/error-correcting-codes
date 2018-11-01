@@ -1,14 +1,18 @@
 <template>
-  <input type="text" :value="value" @input="$emit('input', $event.target.value)"/>
+  <input type="text" :value="value" @input="$emit('input', $event.target.value)" :class="valid ? 'input-valid' : 'input-invalid'"/>
 </template>
 
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-export default Vue.extend({
-  props:['value']
-})
+@Component
+export default class AppInput extends Vue {
+  @Prop()
+  value!:any
+  @Prop(Boolean)
+  valid!:boolean
+}
 </script>
 
 <style scoped>
@@ -26,5 +30,10 @@ input[type=text] {
 
 input:active, input:focus {
   border: 1px solid #acc;
+}
+
+.input-invalid {
+  border: 1px solid var(--color-invalid) !important;
+  border-radius: 2px;
 }
 </style>
