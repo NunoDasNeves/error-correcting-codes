@@ -13,7 +13,7 @@
           :key="i">
           <!-- horizontal line -->
           <polyline
-            :points="horiz_line_points(i)"
+            :points="horiz_line_points(g, i)"
             :stroke="GEN_COLORS[i]"
             stroke-width='2' fill='transparent'/>
 
@@ -107,19 +107,23 @@ export default class Diagram extends Vue {
   TOP_OFFSET: number = this.SQUARE_WIDTH/2 // offset for lines
   GEN_COLORS:string[] = ['red', 'blue', 'green', 'orange', 'purple', 'black']
 
-  horiz_line_points(index: number): string {
+  horiz_line_points(poly: number[], index: number): string {
+    // space between vertical lines, used to determine where horizontal lines start
     const SPACE_WIDTH: number = this.SQUARE_WIDTH/this.gen.length
-    const startX:number = SPACE_WIDTH*index + SPACE_WIDTH/2
+    // used to skip zeros at the start of a polynomial
+    const first_nonzero: number = poly.reduce((acc, curr, i) => acc == -1 && curr ? i : acc, -1)
+    const startX:number = SPACE_WIDTH*index + SPACE_WIDTH/2 + first_nonzero*this.SQUARE_WIDTH
     const endX: number = this.SQUARE_WIDTH*(this.gen[0].length + 1)
     const Y:number = this.TOP_OFFSET + index*this.SQUARE_WIDTH
     return `${startX} ${Y}, ${endX} ${Y}`
   }
 
-  vert_line_points(polyIndex: number, inputIndex: number): string {
+  vert_line_points(poly_index: number, input_index: number): string {
+    // space between vertical lines
     const SPACE_WIDTH: number = this.SQUARE_WIDTH/this.gen.length
-    const startY:number = this.TOP_OFFSET + polyIndex*this.SQUARE_WIDTH
+    const startY:number = this.TOP_OFFSET + poly_index*this.SQUARE_WIDTH
     const endY: number = this.SQUARE_WIDTH*this.gen.length
-    const X:number = SPACE_WIDTH*polyIndex + SPACE_WIDTH/2 + inputIndex*this.SQUARE_WIDTH
+    const X:number = SPACE_WIDTH*poly_index + SPACE_WIDTH/2 + input_index*this.SQUARE_WIDTH
     return `${X} ${startY}, ${X} ${endY}`
   }
 
