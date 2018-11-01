@@ -1,26 +1,27 @@
 <template>
-  <button type='button' :class="alt ? 'standard-button' : 'alt-button'" >
+  <button type='button' :class="button_class" >
     <slot></slot>
   </button>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-export default Vue.extend({
-  props: {
-    alt: {
-      type: Boolean,
-      default: true
-    }
+@Component
+export default class Diagram extends Vue {
+  @Prop({type: String, default: 'standard'})
+  type!: string
+
+  get button_class(): string {
+    return `${this.type}-button`
   }
-})
+}
 </script>
 
 <style scoped>
 button {
     cursor: pointer;
-    padding: 8px 14px;
+    padding: 8px 20px;
     margin: 4px;
     font: inherit;
     font-weight: bolder;
@@ -52,6 +53,16 @@ button:disabled {
 }
 
 .alt-button:hover {
+    box-shadow: var(--box-shadow-active);
+}
+
+.warning-button {
+    background-color: var(--color-warning);
+    color: var(--color-white);
+    border: none;
+}
+
+.warning-button:hover {
     box-shadow: var(--box-shadow-active);
 }
 </style>

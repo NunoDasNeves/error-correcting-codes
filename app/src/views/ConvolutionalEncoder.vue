@@ -13,7 +13,7 @@
         <AppButton @click.native="start_encoder">Start</AppButton>
       </form>
       <div v-else>
-        <AppButton :alt="true" @click.native="stop_encoder">Stop</AppButton>
+        <AppButton :type="'warning'" @click.native="stop_encoder">Stop</AppButton>
         generator polynomials: {{ encoder_params.gen }}<br/>
 
         <AppSpoiler :title="'What are generator polynomials?'">
@@ -63,6 +63,8 @@
           TODO
         </AppSpoiler>
 
+        <AppButton @click.native="next">Next</AppButton>
+
         <EncoderDiagram :input="[1,0,0]" :output="[1,0,1,0]" :gen="encoder_params.gen"/>
 
       </div>
@@ -71,36 +73,33 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import InputBits from '@/components/Encoder/InputBits.vue'
 import EncoderDiagram from '@/components/Encoder/Diagram.vue'
 
-export default Vue.extend({
-  components: { InputBits, EncoderDiagram },
-  data() {
-    return {
-      encoder_started: false,
-      encoder_params: {
-        input: '',
-        K: 3,
-        n: 3,
-        gen: [[1,1,1], [0,1,1], [1,0,1], [1,1,1]]
-      }
-    }
-  },
-  methods: {
-    start_encoder() {
-      if (this.encoder_params.input.length == 0 || this.encoder_params.input.length > 10) return
-      this.encoder_started = true
-    },
-    stop_encoder() {
-      this.encoder_started = false
-    },
-    latex_polynomial_string(poly:number[]): string {
-      return poly.map((a:number, i:number)=>`${a}${i ? (i > 1 ? 'x^{'+i+'}' : 'x') : ''}`).join(' + ')
-    }
+@Component({ components: { InputBits, EncoderDiagram } })
+export default class Diagram extends Vue {
+  encoder_started: boolean = false
+  encoder_params = {
+                    input: '',
+                    K: 3,
+                    n: 3,
+                    gen: [[1,1,1], [0,1,1], [1,0,1], [1,1,1]]
+                    }
+  start_encoder() {
+    if (this.encoder_params.input.length == 0 || this.encoder_params.input.length > 10) return
+    this.encoder_started = true
   }
-})
+  stop_encoder() {
+    this.encoder_started = false
+  }
+  latex_polynomial_string(poly:number[]): string {
+    return poly.map((a:number, i:number)=>`${a}${i ? (i > 1 ? 'x^{'+i+'}' : 'x') : ''}`).join(' + ')
+  }
+  next() {
+    // TODO
+  }
+}
 </script>
 
 <style scoped lang="less">

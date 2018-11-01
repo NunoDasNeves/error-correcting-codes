@@ -19,7 +19,9 @@
   --color-gray: #d5d5d5;
   --color-light-gray: #eaeaea;
   --color-very-light-gray: #f9f9f9;
-  --color-invalid: #ff2211;
+  --color-invalid: #f36015;
+  --color-warning: var(--color-invalid);
+  --color-warning-light: #ff9552;
   // borders
   --border-dark: 1px solid var(--color-gray);
   --border: 1px solid var(--color-light-gray);
