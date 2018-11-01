@@ -63,7 +63,7 @@
           TODO
         </AppSpoiler>
 
-        <Encoder :input="[1,0,0]" :output="[1,0,1]" :gen="encoder_params.gen"/>
+        <Encoder :input="[1,0,0]" :output="[1,0,1,0]" :gen="encoder_params.gen"/>
 
       </div>
     </section>
@@ -84,7 +84,7 @@ export default Vue.extend({
         input: '',
         K: 3,
         n: 3,
-        gen: [[1,1,1], [0,1,1], [1,0,1]]
+        gen: [[1,1,1], [0,1,1], [1,0,1], [1,1,1]]
       }
     }
   },
