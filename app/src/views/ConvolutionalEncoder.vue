@@ -63,7 +63,7 @@
           TODO
         </AppSpoiler>
 
-        <Encoder :input="[1,0,0]" :output="[1,0,1,0]" :gen="encoder_params.gen"/>
+        <EncoderDiagram :input="[1,0,0]" :output="[1,0,1,0]" :gen="encoder_params.gen"/>
 
       </div>
     </section>
@@ -73,10 +73,10 @@
 <script lang="ts">
 import Vue from 'vue'
 import InputBits from '@/components/Encoder/InputBits.vue'
-import Encoder from '@/components/Encoder/Encoder3x3.vue'
+import EncoderDiagram from '@/components/Encoder/Diagram.vue'
 
 export default Vue.extend({
-  components: { InputBits, Encoder },
+  components: { InputBits, EncoderDiagram },
   data() {
     return {
       encoder_started: false,

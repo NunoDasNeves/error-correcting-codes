@@ -90,7 +90,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
-export default class Encoder3x3 extends Vue {
+export default class Diagram extends Vue {
   // only tested with 3x3 encoder!
   @Prop(Array)
   input!: number[]
@@ -105,7 +105,7 @@ export default class Encoder3x3 extends Vue {
   SQUARE_WIDTH:number = 225 * this.SCALING_FACTOR
   XOR_RADIUS: number = 45 * this.SCALING_FACTOR
   TOP_OFFSET: number = this.SQUARE_WIDTH/2 // offset for lines
-  GEN_COLORS:string[] = ['red', 'blue', 'green', 'black', 'orange', 'purple']
+  GEN_COLORS:string[] = ['red', 'blue', 'green', 'orange', 'purple', 'black']
 
   horiz_line_points(index: number): string {
     const SPACE_WIDTH: number = this.SQUARE_WIDTH/this.gen.length
