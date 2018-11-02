@@ -57,7 +57,7 @@
         </AppSpoiler>
 
         input binary:<br/>
-        <InputBits :bits='encoder.input' :index="encoder.i - 1" :K="encoder_params.K"/>
+        <InputBits :bits='encoder.input' :index="encoder.i" :K="encoder_params.K"/>
 
         <AppSpoiler :title="'How is the input string converted to binary?'">
           TODO

@@ -17,7 +17,7 @@ export interface EncoderParams {
 
 @Module({ dynamic: true, store, name: 'encoder' })
 class EncoderState extends VuexModule implements IEncoderState {
-  encoder_obj: Encoder = new Encoder(3,3,[[1,1,1],[0,1,1],[1,1,1]], [0,1,1,1,0,0,1,0])
+  encoder_obj: Encoder = Encoder.example()
   encoder_started: boolean = false
   input_string: string = ''
 
@@ -48,7 +48,6 @@ class EncoderState extends VuexModule implements IEncoderState {
   @Mutation
   NEW_ENCODER(params: EncoderParams) {
     this.encoder_obj = new Encoder(params.n, params.K, params.gen, params.input)
-    this.encoder_obj.next()
   }
 
 }

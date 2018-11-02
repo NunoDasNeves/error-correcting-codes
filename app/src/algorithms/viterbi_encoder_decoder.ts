@@ -76,10 +76,11 @@ export class Encoder {
         this.K = K
         this.gen = gen
         this.input = input
-        this.i = 0
+        this.i = -1
         this.reg = new Array<number>(K).fill(0)
         this.states = new Array<number[]>()
         this.outputs = new Array<number[]>()
+        this.next()
     }
 
     // produce a simple example encoder
@@ -90,9 +91,11 @@ export class Encoder {
     // retrieve next output symbol and return it
     next() {
 
-        if (this.i >= this.input.length) {
+        if (this.i + 1 >= this.input.length) {
             return undefined
         }
+
+        this.i++
 
         //console.log(this.reg)
 
@@ -113,7 +116,6 @@ export class Encoder {
         //console.log("out: "+out_symbol)
 
         // bookkeeping
-        this.i++
         this.states.push(Array.from(this.reg))
         this.outputs.push(Array.from(out_symbol))
 
