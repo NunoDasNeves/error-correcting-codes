@@ -1,6 +1,6 @@
 
 // convert a regular string to an array of bits for use with an Encoder
-function stringToBinaryArray(s: string): number[] {
+export function stringToBinaryArray(s: string): number[] {
     const ret: number[] = []
 
     for(let i = 0; i < s.length; ++i) {
@@ -17,7 +17,7 @@ function stringToBinaryArray(s: string): number[] {
 }
 
 // convert an array produced by a Decoder to a string
-function binaryArrayToString(bits: number[]): string {
+export function binaryArrayToString(bits: number[]): string {
 
     const nums: number[] = []
     // group array into arrays of 8 bits
@@ -35,7 +35,7 @@ function binaryArrayToString(bits: number[]): string {
 
 // convert an array of bits into a number
 // use intuitive ordering, so [ 1, 0 ] -> 2
-function arrayToNumber(bits: number[]): number {
+export function arrayToNumber(bits: number[]): number {
     let num: number = 0
     for (let i: number = bits.length-1; i >= 0; --i) {
         num |= bits[i] << i
@@ -45,7 +45,7 @@ function arrayToNumber(bits: number[]): number {
 
 // convert a number into an array of bits of specified length
 // preserve intuitive ordering, so 2 -> [ 1, 0 ]
-function numberToArray(num: number, len:number): number[] {
+export function numberToArray(num: number, len:number): number[] {
     let bits: number[] = []
     for (let i: number = 0; i < len; ++i) {
         bits.unshift((num >> i) & 1)
@@ -55,7 +55,7 @@ function numberToArray(num: number, len:number): number[] {
 
 
 // A simple convolutional encoder
-class Encoder {
+export class Encoder {
 
     // input parameters
     n: number           // number of bits per output symbol
@@ -123,7 +123,7 @@ class Encoder {
 }
 
 // A Viterbi algorithm decoder
-class Decoder {
+export class Decoder {
 
     // input parameters
     n: number           // number of bits per encoded symbol
@@ -314,6 +314,3 @@ function testEncoder() {
     console.log(binaryArrayToString(decoder.decode()))
 
 }
-
-testEncoder()
-

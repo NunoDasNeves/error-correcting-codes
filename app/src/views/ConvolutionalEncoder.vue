@@ -4,8 +4,8 @@
     <section>
 
       <form v-if="!encoder_started">
-        input string: <AppInput v-model="encoder_params.input" :valid="encoder_params.input.length <= 10"/>
-        <div v-if="encoder_params.input.length > 10">
+        input string: <AppInput v-model="input_string" :valid="input_string.length <= 10"/>
+        <div v-if="input_string.length > 10">
           Please limit the input to 10 characters
         </div>
         <!--K: <AppInput v-model="encoder_params.K"/>-->
@@ -57,7 +57,7 @@
         </AppSpoiler>
 
         input binary:<br/>
-        <InputBits :bits='[1,0,1,1,1,0,0,1,0,0,1,1,0]' :index="0" :K="encoder_params.K"/>
+        <InputBits :bits='encoder.input' :index="encoder.i - 1" :K="encoder_params.K"/>
 
         <AppSpoiler :title="'How is the input string converted to binary?'">
           TODO
@@ -65,7 +65,7 @@
 
         <AppButton @click.native="next">Next</AppButton>
 
-        <EncoderDiagram :input="[1,0,0]" :output="[1,0,1,0]" :gen="encoder_params.gen"/>
+        <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
 
       </div>
     </section>
@@ -76,28 +76,47 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import InputBits from '@/components/Encoder/InputBits.vue'
 import EncoderDiagram from '@/components/Encoder/Diagram.vue'
+import { EncoderParams, EncoderModule } from '@/store/encoder.ts'
+import { Encoder, stringToBinaryArray } from '@/algorithms/viterbi_encoder_decoder.ts'
 
 @Component({ components: { InputBits, EncoderDiagram } })
 export default class Diagram extends Vue {
-  encoder_started: boolean = false
-  encoder_params = {
-                    input: '',
+  encoder_params: EncoderParams = {
+                    input: [],
                     K: 3,
                     n: 3,
-                    gen: [[1,1,1], [0,1,1], [1,0,1], [1,1,1]]
+                    gen: [[1,1,1], [0,1,1], [1,0,1]]
                     }
+
+  get encoder(): Encoder {
+    return EncoderModule.encoder
+  }
+
+  get input_string(): string {
+    return EncoderModule.input_string
+  }
+  set input_string(s:string) {
+    EncoderModule.set_input_string(s)
+  }
+
+  get encoder_started(): boolean {
+    return EncoderModule.encoder_started
+  }
+
   start_encoder() {
-    if (this.encoder_params.input.length == 0 || this.encoder_params.input.length > 10) return
-    this.encoder_started = true
+    if (this.input_string.length == 0 || this.input_string.length > 10) return
+    this.encoder_params.input = stringToBinaryArray(this.input_string)
+    EncoderModule.start_encoder(this.encoder_params)
+    EncoderModule.set_encoder_started(true)
   }
   stop_encoder() {
-    this.encoder_started = false
+    EncoderModule.set_encoder_started(false)
   }
   latex_polynomial_string(poly:number[]): string {
     return poly.map((a:number, i:number)=>`${a}${i ? (i > 1 ? 'x^{'+i+'}' : 'x') : ''}`).join(' + ')
   }
   next() {
-    // TODO
+    EncoderModule.encoder.next()
   }
 }
 </script>
