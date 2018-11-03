@@ -1,6 +1,6 @@
 <template>
   <div class="binary-container">
-    <div v-for="(s, i) in symbols" class="symbol-item binary-item-border-left">
+    <div v-for="(s, i) in symbols" :class="`symbol-item binary-item-border-left ${i == symbols.length-1 ? 'symbol-item-output' : ''}`">
       <span v-for="b in s" class="bit-item">
         {{ b }}
       </span>
@@ -30,6 +30,10 @@ export default class InputBits extends Vue {
 .symbol-item {
     display:flex;
     margin: 4px;
+}
+
+.symbol-item-output {
+    background-color: var(--color-bit-output);
 }
 
 .bit-item {

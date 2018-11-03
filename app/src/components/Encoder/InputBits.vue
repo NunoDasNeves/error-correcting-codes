@@ -24,9 +24,9 @@ export default class InputBits extends Vue {
 
   get_border_class(i: number): string {
     if (i < this.index || i >= this.index + this.K) return ''
-    if (i == this.index) return 'binary-item-border-left'
+    if (i == this.index) return 'binary-item-border-left binary-item-state'
     if (i == (this.index + this.K - 1)) return 'binary-item-border binary-item-input'
-    else return 'binary-item-border'
+    else return 'binary-item-border binary-item-state'
   }
 }
 </script>
@@ -54,7 +54,11 @@ export default class InputBits extends Vue {
     border-width: 1px 1px 1px 0;
 }
 .binary-item-input {
-    background-color: #ff000088;
+    background-color: var(--color-bit-input);
+}
+
+.binary-item-state {
+    background-color: var(--color-bit-state);
 }
 
 </style>

@@ -22,6 +22,11 @@
   --color-invalid: #f36015;
   --color-warning: var(--color-invalid);
   --color-warning-light: #ff9552;
+
+  --color-bit-input: #ff8888;
+  --color-bit-state: #8888ff;
+  --color-bit-output: #88ff88;
+
   // borders
   --border-dark: 1px solid var(--color-gray);
   --border: 1px solid var(--color-light-gray);

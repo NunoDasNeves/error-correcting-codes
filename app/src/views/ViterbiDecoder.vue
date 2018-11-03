@@ -30,13 +30,15 @@
         <AppButton :type="'warning'" @click.native="stop_decoder">Stop</AppButton>
         <AppButton :type="'warning'" @click.native="reset_decoder">Reset</AppButton>
         <br/>
+        Input binary:<br/>
+        {{ decoder_params.input }}
 
-        State map<br/>
-        TODO
+        State map:<br/>
+        All possible encoder states and their outputs
         <p></p>
 
         Trellis<br/>
-        TODO
+        Trellis/DP diagram
       </div>
 
     </section>
@@ -86,14 +88,25 @@ export default class ViterbiDecoder extends Vue {
     }, {})
   }
 
+  // flip bits in input corresponding to error map
+  apply_errors() {
+    Object.keys(this.errors).map((value:string) => {
+      if (this.errors[value]) {
+        this.decoder_params.input[Number(value)] = Number(!this.decoder_params.input[Number(value)])
+      }
+    })
+  }
+
   start_decoder() {
-    // TODO apply errors
+    this.apply_errors()
     DecoderModule.start_decoder(this.decoder_params)
   }
   stop_decoder() {
+    this.apply_errors()
     DecoderModule.stop_decoder()
   }
   reset_decoder() {
+    this.apply_errors()
     this.decoder.reset()
   }
 

@@ -50,10 +50,9 @@
             :transform="`translate(${index*SQUARE_WIDTH},0)`">
             <rect
               x='0' y='0'
-              fill-opacity='0.5'
               stroke='black' stroke-width='2'
               :width="SQUARE_WIDTH" :height="SQUARE_WIDTH"
-              :fill="index == 0 ? 'red' : 'transparent'"
+              :fill="index == 0 ? 'var(--color-bit-input)' : 'var(--color-bit-state)'"
               />
             <text
               :x="SQUARE_WIDTH*0.3" :y="SQUARE_WIDTH*0.76"
@@ -61,7 +60,20 @@
               class="encoder-svg-text">
               {{ item }}
             </text>
+            <text
+              :x="SQUARE_WIDTH*0.19" :y="SQUARE_WIDTH*1.25"
+              v-if="index == 0"
+              :style="`font-size:${FONT_SIZE_SMALL}`"
+              >
+              (input bit)
+            </text>
           </g>
+          <text
+              :x="SQUARE_WIDTH + SQUARE_WIDTH*(gen.length-1)/2 - SQUARE_WIDTH*0.35" :y="SQUARE_WIDTH*1.25"
+              :style="`font-size:${FONT_SIZE_SMALL}`"
+              >
+              (state bits)
+            </text>
         </g>
 
         <!-- output -->
@@ -70,7 +82,7 @@
             <rect
               x='0' y='0'
               stroke='black' stroke-width='2'
-              fill='transparent'
+              fill='var(--color-bit-output)'
               :width="SQUARE_WIDTH" :height="SQUARE_WIDTH"
               />
             <text
@@ -101,8 +113,9 @@ export default class Diagram extends Vue {
   gen!: number[][]
 
   SCALING_FACTOR: number = 1/Math.max(this.gen.length, this.gen[0].length)
-  MARGIN: number = 25
+  MARGIN: number = 30
   FONT_SIZE: string = `${9 * this.SCALING_FACTOR}em`
+  FONT_SIZE_SMALL: string = `${2 * this.SCALING_FACTOR}em`
   SQUARE_WIDTH:number = 225 * this.SCALING_FACTOR
   XOR_RADIUS: number = 45 * this.SCALING_FACTOR
   TOP_OFFSET: number = this.SQUARE_WIDTH/2 // offset for lines
