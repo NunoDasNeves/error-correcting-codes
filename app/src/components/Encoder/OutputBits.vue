@@ -1,7 +1,9 @@
 <template>
   <div class="binary-container">
-    <div v-for="(s, i) in symbols" class="binary-item binary-item-border-left">
-      {{ s.join(' ') }}
+    <div v-for="(s, i) in symbols" class="symbol-item binary-item-border-left">
+      <span v-for="b in s" class="bit-item">
+        {{ b }}
+      </span>
     </div>
   </div>
 </template>
@@ -21,14 +23,17 @@ export default class InputBits extends Vue {
     display:flex;
     flex-direction: row;
     justify-content: flex-start;
-    font-family:var(--font-monospace);
     flex-flow: row wrap;
+    font-family:var(--font-monospace);
 }
 
-.binary-item {
-    display:inline-block;
-    padding:0 5px;
+.symbol-item {
+    display:flex;
     margin: 4px;
+}
+
+.bit-item {
+    padding:0 5px;
 }
 
 // top right bottom left
@@ -39,9 +44,6 @@ export default class InputBits extends Vue {
 .binary-item-border {
     border: solid black;
     border-width: 1px 1px 1px 0;
-}
-.binary-item-input {
-    background-color: #ff000088;
 }
 
 </style>

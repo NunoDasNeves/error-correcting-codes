@@ -17,8 +17,12 @@
           :bits="decoder_params.input"
           :n="decoder_params.n"
           :errors="errors"
-          :callback="(bit) => errors[bit] = !errors[bit]"
-          />
+          :callback="toggle_error"
+          /><br/>
+          Click bits to add errors.
+          <AppButton @click.native="() => errors = {}">Clear errors</AppButton>
+          <AppButton @click.native="randomize_errors">Random errors</AppButton>
+          <br/>
         <AppButton @click.native="start_decoder">Start Decoding</AppButton>
       </form>
 
@@ -69,7 +73,21 @@ export default class ViterbiDecoder extends Vue {
     return DecoderModule.decoder_started
   }
 
+  toggle_error(index: number) {
+    this.errors[index] = !this.errors[index]
+    this.errors = {...this.errors} // we need to change the reference to make the prop reactive...
+  }
+
+  randomize_errors() {
+    const error_array: boolean[] = new Array<boolean>(this.decoder_params.input.length).fill(false)
+    this.errors = error_array.reduce((acc:any, curr:boolean, i:number) => {
+      acc[i] = Boolean(Math.round(Math.random()*2/3))
+      return acc
+    }, {})
+  }
+
   start_decoder() {
+    // TODO apply errors
     DecoderModule.start_decoder(this.decoder_params)
   }
   stop_decoder() {

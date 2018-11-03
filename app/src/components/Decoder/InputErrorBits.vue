@@ -1,8 +1,8 @@
 <template>
   <div class="binary-container">
     <div v-for="(s, i) in grouped_bits" class="symbol-item binary-item-border-left">
-      <span v-for="(b, b_i) in s" :class="'bit-item ' + errors[i*n+b_i] ? 'bit-error' : ''">
-        {{ b }}
+      <span v-for="(b, b_i) in s" v-on:click="callback(i*n+b_i)" :class="'bit-item ' + (!!errors[i*n+b_i] ? 'bit-error' : '')">
+        {{ !!errors[i*n+b_i] ? Number(!b) : b }}
       </span>
     </div>
   </div>
@@ -22,6 +22,8 @@ export default class InputErrorBits extends Vue {
   @Prop(Function)
   callback!: any
 
+  actual_errors: any = {}
+
   get grouped_bits(): number[][] {
       return this.bits.reduce((acc:number[][], curr:number, i:number) => {
         i % this.n == 0 ? acc.push([curr]) : acc[acc.length-1].push(curr)
@@ -36,15 +38,18 @@ export default class InputErrorBits extends Vue {
     display:flex;
     flex-direction: row;
     justify-content: flex-start;
+    flex-flow: row wrap;
     font-family:var(--font-monospace);
 }
 
 .symbol-item {
-    display:inline-block;
+    display:flex;
+    margin: 4px;
 }
 
 .bit-item {
     padding:0 5px;
+    cursor:pointer;
 }
 
 .bit-error {
