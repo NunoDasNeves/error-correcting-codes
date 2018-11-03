@@ -25,6 +25,9 @@ export default new Router({
       path: '/decoder',
       name: 'decoder',
       component: Decoder,
+      props: ({ params: { passed_params } }) => ({
+        passed_params
+      }),
     },
     {
       path: '/test',

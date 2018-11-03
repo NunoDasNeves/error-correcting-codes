@@ -56,16 +56,17 @@
           </Math>
         </AppSpoiler>
 
-        input binary:<br/>
+        Input binary:<br/>
         <InputBits :bits='encoder.input' :index="encoder.i" :K="encoder_params.K"/>
 
-        <AppSpoiler :title="'How is the input string converted to binary?'">
-          TODO
-        </AppSpoiler>
-
-        <AppButton @click.native="next">Next</AppButton>
+        <AppButton @click.native="next" :disabled="encoder.finished">Next</AppButton>
 
         <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
+
+        Output symbols:
+        <OutputBits :symbols='encoder.outputs'/>
+
+        <AppButton @click.native="decode" :disabled="!encoder.finished">Decode</AppButton>
 
       </div>
     </section>
@@ -75,12 +76,13 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import InputBits from '@/components/Encoder/InputBits.vue'
+import OutputBits from '@/components/Encoder/OutputBits.vue'
 import EncoderDiagram from '@/components/Encoder/Diagram.vue'
 import { EncoderParams, EncoderModule } from '@/store/encoder.ts'
 import { Encoder, stringToBinaryArray } from '@/algorithms/viterbi_encoder_decoder.ts'
 
-@Component({ components: { InputBits, EncoderDiagram } })
-export default class Diagram extends Vue {
+@Component({ components: { InputBits, EncoderDiagram, OutputBits } })
+export default class ConvolutionalEncoder extends Vue {
   encoder_params: EncoderParams = {
                     input: [],
                     K: 3,
@@ -117,6 +119,13 @@ export default class Diagram extends Vue {
   }
   next() {
     EncoderModule.encoder.next()
+  }
+
+  decode() {
+    const flattened: number[] = this.encoder.outputs.reduce((acc, curr) => acc.concat(curr), [])
+    const params: any = { ...this.encoder_params }
+    params.input = flattened
+    this.$router.push({ name: 'decoder', params: { passed_params: params}})
   }
 }
 </script>

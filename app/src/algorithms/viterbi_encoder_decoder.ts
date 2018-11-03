@@ -70,6 +70,7 @@ export class Encoder {
     // history
     states: number[][]  // stored states
     outputs: number[][] // stored outputs
+    finished: boolean
 
     constructor(n: number, K: number, gen: number[][], input: number[]) {
         this.n = n
@@ -77,6 +78,7 @@ export class Encoder {
         this.gen = gen
         this.input = input
         this.i = -1
+        this.finished = false
         this.reg = new Array<number>(K).fill(0)
         this.states = new Array<number[]>()
         this.outputs = new Array<number[]>()
@@ -91,7 +93,7 @@ export class Encoder {
     // retrieve next output symbol and return it
     next() {
 
-        if (this.i + 1 >= this.input.length) {
+        if (this.finished) {
             return undefined
         }
 
@@ -118,6 +120,10 @@ export class Encoder {
         // bookkeeping
         this.states.push(Array.from(this.reg))
         this.outputs.push(Array.from(out_symbol))
+
+        if (this.i + 1 >= this.input.length) {
+          this.finished = true
+        }
 
         return out_symbol
     }

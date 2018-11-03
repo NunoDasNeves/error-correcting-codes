@@ -8,7 +8,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
-export default class Diagram extends Vue {
+export default class AppButton extends Vue {
   @Prop({type: String, default: 'standard'})
   type!: string
 
@@ -31,7 +31,7 @@ button {
 }
 
 button:disabled {
-    cursor: help;
+    cursor: not-allowed;
     opacity: 0.4;
     box-shadow: none;
 }
