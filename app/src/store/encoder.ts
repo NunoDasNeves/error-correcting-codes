@@ -33,21 +33,21 @@ class EncoderState extends VuexModule implements IEncoderState {
     this.input_string = s
   }
 
-  @Action({ commit: 'SET_STARTED' })
-  set_encoder_started(b: boolean) { return b }
+  @Action({ commit: 'STOP_ENCODER' })
+  stop_encoder() { }
 
   @Mutation
-  SET_STARTED(b: boolean) {
-    this.encoder_started = b
+  STOP_ENCODER() {
+    this.encoder_started = false
   }
 
-
-  @Action({ commit: 'NEW_ENCODER' })
+  @Action({ commit: 'START_ENCODER' })
   start_encoder(params: EncoderParams) { return params }
 
   @Mutation
-  NEW_ENCODER(params: EncoderParams) {
+  START_ENCODER(params: EncoderParams) {
     this.encoder_obj = new Encoder(params.n, params.K, params.gen, params.input)
+    this.encoder_started = true
   }
 
 }

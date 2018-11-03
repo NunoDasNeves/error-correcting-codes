@@ -5,7 +5,6 @@ import store from '@/store';
 export interface IDecoderState {
   decoder_obj: Decoder
   decoder_started: boolean
-  input: number[]
 }
 
 export interface DecoderParams {
@@ -19,28 +18,18 @@ export interface DecoderParams {
 class DecoderState extends VuexModule implements IDecoderState {
   decoder_obj: Decoder = Decoder.example([])
   decoder_started: boolean = false
-  input: number[] = [1,0,1,1,0]
 
   get decoder() {
     return this.decoder_obj
   }
 
-  @Action({ commit: 'SET_INPUT' })
-  set_input(i: number[]) { return i }
+  @Action({ commit: 'STOP_DECODER' })
+  stop_decoder() { }
 
   @Mutation
-  SET_INPUT(i: number[]) {
-    this.input = i
+  STOP_DECODER() {
+    this.decoder_started = false
   }
-
-  @Action({ commit: 'SET_STARTED' })
-  set_decoder_started(b: boolean) { return b }
-
-  @Mutation
-  SET_STARTED(b: boolean) {
-    this.decoder_started = b
-  }
-
 
   @Action({ commit: 'NEW_DECODER' })
   start_decoder(params: DecoderParams) { return params }
@@ -48,6 +37,7 @@ class DecoderState extends VuexModule implements IDecoderState {
   @Mutation
   NEW_DECODER(params: DecoderParams) {
     this.decoder_obj = new Decoder(params.n, params.K, params.gen, params.input)
+    this.decoder_started = true
   }
 
 }

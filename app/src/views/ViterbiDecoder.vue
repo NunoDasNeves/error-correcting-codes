@@ -66,17 +66,16 @@ export default class ViterbiDecoder extends Vue {
   start_decoder() {
     if (this.input_string.length == 0 || this.input_string.length > 10) return
     DecoderModule.start_decoder(this.decoder_params)
-    DecoderModule.set_decoder_started(true)
   }
   stop_decoder() {
-    DecoderModule.set_decoder_started(false)
+    DecoderModule.stop_decoder()
   }
   reset_decoder() {
     this.decoder.reset()
   }
 
   created() {
-    // used passed params if they exist
+    // use passed params if they exist
     if (this.passed_params) {
       this.decoder_params = this.passed_params
       this.got_params = true

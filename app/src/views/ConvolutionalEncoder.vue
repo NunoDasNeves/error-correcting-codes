@@ -110,10 +110,9 @@ export default class ConvolutionalEncoder extends Vue {
     if (this.input_string.length == 0 || this.input_string.length > 10) return
     this.encoder_params.input = stringToBinaryArray(this.input_string)
     EncoderModule.start_encoder(this.encoder_params)
-    EncoderModule.set_encoder_started(true)
   }
   stop_encoder() {
-    EncoderModule.set_encoder_started(false)
+    EncoderModule.stop_encoder()
   }
   reset_encoder() {
     this.encoder.reset()
