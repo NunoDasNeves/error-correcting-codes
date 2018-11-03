@@ -1,9 +1,6 @@
 <template>
   <div>
-    <svg version="1.1"
-       baseProfile="full"
-       :width="SQUARE_WIDTH*(gen[0].length + 2) + MARGIN*2" :height="SQUARE_WIDTH*(gen.length + 1) + MARGIN*2"
-       xmlns="http://www.w3.org/2000/svg">
+    <AppSvg :width="SQUARE_WIDTH*(gen[0].length + 2) + MARGIN*2" :height="SQUARE_WIDTH*(gen.length + 1) + MARGIN*2">
 
        <g :transform="`translate(${MARGIN},${MARGIN})`">
 
@@ -96,7 +93,7 @@
 
       </g> <!--margin-->
 
-    </svg>
+    </AppSvg>
   </div>
 </template>
 

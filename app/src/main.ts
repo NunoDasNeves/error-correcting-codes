@@ -6,11 +6,13 @@ import Math from '@/components/AppMathJax.vue';
 import AppInput from '@/components/AppInput.vue';
 import AppButton from '@/components/AppButton.vue';
 import AppSpoiler from '@/components/AppSpoiler.vue';
+import AppSvg from '@/components/AppSvg.vue';
 
 Vue.component('Math', Math)
 Vue.component('AppInput', AppInput)
 Vue.component('AppButton', AppButton)
 Vue.component('AppSpoiler', AppSpoiler)
+Vue.component('AppSvg', AppSvg)
 
 Vue.config.productionTip = false;
 
