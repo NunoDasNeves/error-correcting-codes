@@ -93,7 +93,17 @@ export class Encoder {
   // call next() until input encoded, flatten outputs and return as number[]
   encodeAndFlatten(): number[] {
     while(this.next());
-    return outputs.reduce((acc, curr) => acc.concat(curr), [])
+    return this.outputs.reduce((acc, curr) => acc.concat(curr), [])
+  }
+
+  // reset to initial state
+  reset() {
+    this.i = -1
+    this.finished = false
+    this.reg = new Array<number>(this.K).fill(0)
+    this.states = new Array<number[]>()
+    this.outputs = new Array<number[]>()
+    this.next()
   }
 
   // retrieve next output symbol and return it
@@ -187,6 +197,10 @@ export class Decoder {
         output: [ this.get_output(0, state), this.get_output(1, state) ]
       })
     }
+  }
+
+  reset() {
+    // TODO
   }
 
   // use generator polynomials to compute output for a given input + state

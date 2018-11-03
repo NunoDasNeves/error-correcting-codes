@@ -10,10 +10,11 @@
         </div>
         <!--K: <AppInput v-model="encoder_params.K"/>-->
         <!--n: <AppInput v-model="encoder_params.n"/>-->
-        <AppButton @click.native="start_encoder">Start</AppButton>
+        <AppButton @click.native="start_encoder">Start Encoding</AppButton>
       </form>
       <div v-else>
         <AppButton :type="'warning'" @click.native="stop_encoder">Stop</AppButton>
+        <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
         generator polynomials: {{ encoder_params.gen }}<br/>
 
         <AppSpoiler :title="'What are generator polynomials?'">
@@ -113,6 +114,9 @@ export default class ConvolutionalEncoder extends Vue {
   }
   stop_encoder() {
     EncoderModule.set_encoder_started(false)
+  }
+  reset_encoder() {
+    this.encoder.reset()
   }
   latex_polynomial_string(poly:number[]): string {
     return poly.map((a:number, i:number)=>`${a}${i ? (i > 1 ? 'x^{'+i+'}' : 'x') : ''}`).join(' + ')

@@ -1,6 +1,6 @@
 <template>
   <div class="binary-container">
-    <div v-for="(s, i) in symbols" :class="'binary-item binary-item-border-left'">
+    <div v-for="(s, i) in symbols" class="binary-item binary-item-border-left">
       {{ s.join(' ') }}
     </div>
   </div>
@@ -13,11 +13,6 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 export default class InputBits extends Vue {
   @Prop(Array)
   symbols!: number[][]
-
-  get_border_class(i: number): string {
-    if (i == 0) return 'binary-item-border-left'
-    else return 'binary-item-border'
-  }
 }
 </script>
 
