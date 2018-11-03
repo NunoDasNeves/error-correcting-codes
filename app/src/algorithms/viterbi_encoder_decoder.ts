@@ -1,309 +1,315 @@
 
 // convert a regular string to an array of bits for use with an Encoder
 export function stringToBinaryArray(s: string): number[] {
-    const ret: number[] = []
+  const ret: number[] = []
 
-    for(let i = 0; i < s.length; ++i) {
-        // get the ascii code
-        let num: number = s.charCodeAt(i)
+  for(let i = 0; i < s.length; ++i) {
+    // get the ascii code
+    let num: number = s.charCodeAt(i)
 
-        // for each bit, push an element on the return array
-        for (let j = 0; j < 8; ++j) {
-            ret.push((num >> j) & 1)
-        }
+    // for each bit, push an element on the return array
+    for (let j = 0; j < 8; ++j) {
+      ret.push((num >> j) & 1)
     }
+  }
 
-    return ret
+  return ret
 }
 
 // convert an array produced by a Decoder to a string
 export function binaryArrayToString(bits: number[]): string {
 
-    const nums: number[] = []
-    // group array into arrays of 8 bits
-    for(let i = 0; i < bits.length; i+=8) {
-        let num: number = 0
-        // reconstruct the ascii code from the bits
-        for (let j = 0; j < 8 && j + i < bits.length; ++j) {
-            num |= (bits[j + i] << j)
-        }
-        nums.push(num)
+  const nums: number[] = []
+  // group array into arrays of 8 bits
+  for(let i = 0; i < bits.length; i+=8) {
+    let num: number = 0
+    // reconstruct the ascii code from the bits
+    for (let j = 0; j < 8 && j + i < bits.length; ++j) {
+      num |= (bits[j + i] << j)
     }
+    nums.push(num)
+  }
 
-    return String.fromCharCode(...nums)
+  return String.fromCharCode(...nums)
 }
 
 // convert an array of bits into a number
 // use intuitive ordering, so [ 1, 0 ] -> 2
 export function arrayToNumber(bits: number[]): number {
-    let num: number = 0
-    for (let i: number = bits.length-1; i >= 0; --i) {
-        num |= bits[i] << i
-    }
-    return num
+  let num: number = 0
+  for (let i: number = bits.length-1; i >= 0; --i) {
+    num |= bits[i] << i
+  }
+  return num
 }
 
 // convert a number into an array of bits of specified length
 // preserve intuitive ordering, so 2 -> [ 1, 0 ]
 export function numberToArray(num: number, len:number): number[] {
-    let bits: number[] = []
-    for (let i: number = 0; i < len; ++i) {
-        bits.unshift((num >> i) & 1)
-    }
-    return bits
+  let bits: number[] = []
+  for (let i: number = 0; i < len; ++i) {
+    bits.unshift((num >> i) & 1)
+  }
+  return bits
 }
 
 
 // A simple convolutional encoder
 export class Encoder {
 
-    // input parameters
-    n: number           // number of bits per output symbol
-    K: number           // constraint length
-    gen: number[][]     // n binary generator polynomials of length K
-    input: number[]     // string of input bits
+  // input parameters
+  n: number           // number of bits per output symbol
+  K: number           // constraint length
+  gen: number[][]     // n binary generator polynomials of length K
+  input: number[]     // string of input bits
 
-    // current state
-    i: number           // the next output symbol will be the ith one
-    reg: number[]       // K single bit shift registers
+  // current state
+  i: number           // the next output symbol will be the ith one
+  reg: number[]       // K single bit shift registers
 
-    // history
-    states: number[][]  // stored states
-    outputs: number[][] // stored outputs
-    finished: boolean
+  // history
+  states: number[][]  // stored states
+  outputs: number[][] // stored outputs
+  finished: boolean
 
-    constructor(n: number, K: number, gen: number[][], input: number[]) {
-        this.n = n
-        this.K = K
-        this.gen = gen
-        this.input = input
-        this.i = -1
-        this.finished = false
-        this.reg = new Array<number>(K).fill(0)
-        this.states = new Array<number[]>()
-        this.outputs = new Array<number[]>()
-        this.next()
+  constructor(n: number, K: number, gen: number[][], input: number[]) {
+    this.n = n
+    this.K = K
+    this.gen = gen
+    this.input = input
+    this.i = -1
+    this.finished = false
+    this.reg = new Array<number>(K).fill(0)
+    this.states = new Array<number[]>()
+    this.outputs = new Array<number[]>()
+    this.next()
+  }
+
+  // produce a simple example encoder
+  static example(input: number[] = [1,0,1,1,0,0,0,1]) {
+    return new Encoder(2, 3, [[1,1,1], [1,0,1]], input)
+  }
+
+  // call next() until input encoded, flatten outputs and return as number[]
+  encodeAndFlatten(): number[] {
+    while(this.next());
+    return outputs.reduce((acc, curr) => acc.concat(curr), [])
+  }
+
+  // retrieve next output symbol and return it
+  next() {
+
+    if (this.finished) {
+      return undefined
     }
 
-    // produce a simple example encoder
-    static example(input: number[] = [1,0,1,1,0,0,0,1]) {
-        return new Encoder(2, 3, [[1,1,1], [1,0,1]], input)
+    this.i++
+
+    //console.log(this.reg)
+
+    // update shift registers
+    this.reg.pop()
+    this.reg.unshift(this.input[this.i])
+
+    // output will be an array of bits
+    const out_symbol: number[] = new Array(this.n).fill(0)
+
+    // for each output bit
+    for (let j: number = 0; j < this.n; ++j) {
+      // use the jth generator polynomial to produce the bit
+      out_symbol[j] = this.gen[j].reduce((acc, g, k) => g ? (acc + this.reg[k]) % 2 : acc, 0)
     }
 
-    // retrieve next output symbol and return it
-    next() {
+    //console.log("state: "+this.reg)
+    //console.log("out: "+out_symbol)
 
-        if (this.finished) {
-            return undefined
-        }
+    // bookkeeping
+    this.states.push(Array.from(this.reg))
+    this.outputs.push(Array.from(out_symbol))
 
-        this.i++
-
-        //console.log(this.reg)
-
-        // update shift registers
-        this.reg.pop()
-        this.reg.unshift(this.input[this.i])
-
-        // output will be an array of bits
-        const out_symbol: number[] = new Array(this.n).fill(0)
-
-        // for each output bit
-        for (let j: number = 0; j < this.n; ++j) {
-            // use the jth generator polynomial to produce the bit
-            out_symbol[j] = this.gen[j].reduce((acc, g, k) => g ? (acc + this.reg[k]) % 2 : acc, 0)
-        }
-
-        //console.log("state: "+this.reg)
-        //console.log("out: "+out_symbol)
-
-        // bookkeeping
-        this.states.push(Array.from(this.reg))
-        this.outputs.push(Array.from(out_symbol))
-
-        if (this.i + 1 >= this.input.length) {
-          this.finished = true
-        }
-
-        return out_symbol
+    if (this.i + 1 >= this.input.length) {
+      this.finished = true
     }
+
+    return out_symbol
+  }
 
 }
 
 // A Viterbi algorithm decoder
 export class Decoder {
 
-    // input parameters
-    n: number           // number of bits per encoded symbol
-    N: number           // number of encoder states
-    K: number           // constraint length (polynomial length)
-    gen: number[][]     // n binary generator polynomials of length K
-    input: number[]     // string of n-bit symbols generated by the encoder (length should be a multiple of n)
+  // input parameters
+  n: number           // number of bits per encoded symbol
+  N: number           // number of encoder states
+  K: number           // constraint length (polynomial length)
+  gen: number[][]     // n binary generator polynomials of length K
+  input: number[]     // string of n-bit symbols generated by the encoder (length should be a multiple of n)
 
-    // state transition graph, indexed by state number
-    // in the decoder, the state is just an integer in [0, N)
-    // [ { prev: [ number, number ], output: [ number[], number[] ] }, ... ]
-    // prev contains the previous possible states in no particular order
-    // output contains the binary strings of output for this state indexed by input (0 or 1)
-    graph: any[]
+  // state transition graph, indexed by state number
+  // in the decoder, the state is just an integer in [0, N)
+  // [ { prev: [ number, number ], output: [ number[], number[] ] }, ... ]
+  // prev contains the previous possible states in no particular order
+  // output contains the binary strings of output for this state indexed by input (0 or 1)
+  graph: any[]
 
-    // current state
-    i: number           // the index of the next encoded symbol in the input array. i/2 = table.length-1
-    // (input.length/n) x N table of { hamming: number, prev: number, bit: number }
-    // hamming is the culmulative best hamming distance to this node
-    // prev is the previous state as just an index
-    // bit is the bit that was most likely transitioned on to get to this state
-    table: any[][]
+  // current state
+  i: number           // the index of the next encoded symbol in the input array. i/2 = table.length-1
+  // (input.length/n) x N table of { hamming: number, prev: number, bit: number }
+  // hamming is the culmulative best hamming distance to this node
+  // prev is the previous state as just an index
+  // bit is the bit that was most likely transitioned on to get to this state
+  table: any[][]
 
-    constructor(n: number, K: number, gen: number[][], input: number[]) {
-        this.n = n
-        this.K = K
-        this.N = Math.pow(2, K-1)
-        this.gen = gen
-        this.input = input
-        this.i = 0
-        this.table = new Array<any[]>()
-        // fill first row with impossible states
-        this.table.push(new Array<any>(this.N).fill({hamming: Number.MAX_SAFE_INTEGER, prev: -1, bit: -1}))
-        // we start in state 0 with 0 accumulated hamming distance
-        this.table[0][0] = { hamming: 0, prev: -1, bit: -1 } // note we need a new object here
-        // initialise state transition graph
-        this.graph = new Array<any>()
-        // for each state
-        for (let s: number = 0; s < this.N; ++s) {
-            // encoder representation of state
-            const state: number[] = numberToArray(s, K-1)
+  constructor(n: number, K: number, gen: number[][], input: number[]) {
+    this.n = n
+    this.K = K
+    this.N = Math.pow(2, K-1)
+    this.gen = gen
+    this.input = input
+    this.i = 0
+    this.table = new Array<any[]>()
+    // fill first row with impossible states
+    this.table.push(new Array<any>(this.N).fill({hamming: Number.MAX_SAFE_INTEGER, prev: -1, bit: -1}))
+    // we start in state 0 with 0 accumulated hamming distance
+    this.table[0][0] = { hamming: 0, prev: -1, bit: -1 } // note we need a new object here
+    // initialise state transition graph
+    this.graph = new Array<any>()
+    // for each state
+    for (let s: number = 0; s < this.N; ++s) {
+      // encoder representation of state
+      const state: number[] = numberToArray(s, K-1)
 
-            this.graph.push({
-                // two possible previous states
-                prev: [ (s << 1) & ~(1 << K-1), ((s << 1) & ~(1 << K-1)) + 1 ],
-                // two possible outputs, 0 input and 1 input
-                output: [ this.get_output(0, state), this.get_output(1, state) ]
-            })
-        }
+      this.graph.push({
+        // two possible previous states
+        prev: [ (s << 1) & ~(1 << K-1), ((s << 1) & ~(1 << K-1)) + 1 ],
+        // two possible outputs, 0 input and 1 input
+        output: [ this.get_output(0, state), this.get_output(1, state) ]
+      })
+    }
+  }
+
+  // use generator polynomials to compute output for a given input + state
+  // input is 1 or 0
+  get_output(input: number, state: number[]) {
+    const full_state: number[] = [input, ...state]
+    // compute output bits
+    const out_symbol: number[] = new Array(this.n).fill(0)
+    // for each output bit
+    for (let j: number = 0; j < this.n; ++j) {
+      // use the jth generator polynomial to produce the bit
+      out_symbol[j] = this.gen[j].reduce((acc, g, k) => g ? (acc + full_state[k]) % 2 : acc, 0)
+    }
+    return out_symbol
+  }
+
+  // produce a simple example decoder
+  static example(input: number[]) {
+    return new Decoder(2, 3, [[1,1,1], [1,0,1]], input)
+  }
+
+  // hamming distance between two bit strings of the same length
+  // this acts as a likelihood function of observable symbol a being produced by actual symbol b
+  hamming(a: number[], b: number[]) {
+    return a.reduce((acc, a_i, i) => acc + (a_i ^ b[i]), 0) // add the xor of each bit
+  }
+
+  // do one step of the algorithm, return true if there are more steps to do
+  next(): boolean {
+
+    // return early
+    if (this.i >= this.input.length) return false
+
+    // array to push on to table
+    let entry: any[] = []
+
+    // consider the next n bits in the input
+    const out_bits: number[] = this.input.slice(this.i,this.i+2)
+    // enumerate the states
+    for (let s: number = 0; s < this.N; ++s) {
+      // for each previous possible state, compute the outputs generated by transitioning to s
+      // compare the outputs to out_bits and choose the lowest hamming distance
+      const prev_1: number = this.graph[s].prev[0]
+      const prev_2: number = this.graph[s].prev[1]
+
+      // the leftmost bit is the one that was transitioned on to get to this state
+      const bit: number = s >> this.K-2
+
+      const hamming_1: number = this.table[this.i/2][prev_1].hamming + this.hamming(out_bits, this.graph[prev_1].output[bit])
+      const hamming_2: number = this.table[this.i/2][prev_2].hamming + this.hamming(out_bits, this.graph[prev_2].output[bit])
+
+      // console.log(`state ${s} can come from ${prev_1}: ${this.graph[prev_1].output[bit]} or ${prev_2}: ${this.graph[prev_2].output[bit]}`)
+
+      let obj: any = {}
+
+      if (hamming_1 < hamming_2) {
+        obj = { hamming: hamming_1, prev: prev_1, bit }
+      } else {
+        obj = { hamming: hamming_2, prev: prev_2, bit }
+      }
+
+      entry.push(obj)
     }
 
-    // use generator polynomials to compute output for a given input + state
-    // input is 1 or 0
-    get_output(input: number, state: number[]) {
-        const full_state: number[] = [input, ...state]
-        // compute output bits
-        const out_symbol: number[] = new Array(this.n).fill(0)
-        // for each output bit
-        for (let j: number = 0; j < this.n; ++j) {
-            // use the jth generator polynomial to produce the bit
-            out_symbol[j] = this.gen[j].reduce((acc, g, k) => g ? (acc + full_state[k]) % 2 : acc, 0)
-        }
-        return out_symbol
+    this.table.push(entry)
+    this.i += 2
+
+    if (this.i >= this.input.length) return false
+    return true
+  }
+
+  // get the path through the filled-in table
+  get_path(): number[] {
+    //console.log("table length")
+    //console.log(this.table.length)
+    //console.log(this.table)
+    let decoded: number[] = []
+
+    // find argmin of hamming distance of last entry in table
+    let curr: number = 0
+    let min: number = Number.MAX_SAFE_INTEGER
+    for (let i: number = 0; i < this.N; ++i) {
+      const hamming: number = this.table[this.table.length -1][i].hamming
+      curr = hamming < min ? i : curr
+      min = hamming < min ? hamming : min
     }
 
-    // produce a simple example decoder
-    static example(input: number[]) {
-        return new Decoder(2, 3, [[1,1,1], [1,0,1]], input)
+    for (let i: number = this.table.length-1; i > 0; --i) {
+      decoded[i-1] = this.table[i][curr].bit
+      curr = this.table[i][curr].prev
     }
+    //console.log(decoded)
 
-    // hamming distance between two bit strings of the same length
-    // this acts as a likelihood function of observable symbol a being produced by actual symbol b
-    hamming(a: number[], b: number[]) {
-        return a.reduce((acc, a_i, i) => acc + (a_i ^ b[i]), 0) // add the xor of each bit
-    }
+    return decoded
+  }
 
-    // do one step of the algorithm, return true if there are more steps to do
-    next(): boolean {
-
-        // return early
-        if (this.i >= this.input.length) return false
-
-        // array to push on to table
-        let entry: any[] = []
-
-        // consider the next n bits in the input
-        const out_bits: number[] = this.input.slice(this.i,this.i+2)
-        // enumerate the states
-        for (let s: number = 0; s < this.N; ++s) {
-            // for each previous possible state, compute the outputs generated by transitioning to s
-            // compare the outputs to out_bits and choose the lowest hamming distance
-            const prev_1: number = this.graph[s].prev[0]
-            const prev_2: number = this.graph[s].prev[1]
-
-            // the leftmost bit is the one that was transitioned on to get to this state
-            const bit: number = s >> this.K-2
-
-            const hamming_1: number = this.table[this.i/2][prev_1].hamming + this.hamming(out_bits, this.graph[prev_1].output[bit])
-            const hamming_2: number = this.table[this.i/2][prev_2].hamming + this.hamming(out_bits, this.graph[prev_2].output[bit])
-
-            // console.log(`state ${s} can come from ${prev_1}: ${this.graph[prev_1].output[bit]} or ${prev_2}: ${this.graph[prev_2].output[bit]}`)
-
-            let obj: any = {}
-
-            if (hamming_1 < hamming_2) {
-                obj = { hamming: hamming_1, prev: prev_1, bit }
-            } else {
-                obj = { hamming: hamming_2, prev: prev_2, bit }
-            }
-
-            entry.push(obj)
-        }
-
-        this.table.push(entry)
-        this.i += 2
-
-        if (this.i >= this.input.length) return false
-        return true
-    }
-
-    // get the path through the filled-in table
-    get_path(): number[] {
-        //console.log("table length")
-        //console.log(this.table.length)
-        //console.log(this.table)
-        let decoded: number[] = []
-
-        // find argmin of hamming distance of last entry in table
-        let curr: number = 0
-        let min: number = Number.MAX_SAFE_INTEGER
-        for (let i: number = 0; i < this.N; ++i) {
-            const hamming: number = this.table[this.table.length -1][i].hamming
-            curr = hamming < min ? i : curr
-            min = hamming < min ? hamming : min
-        }
-
-        for (let i: number = this.table.length-1; i > 0; --i) {
-            decoded[i-1] = this.table[i][curr].bit
-            curr = this.table[i][curr].prev
-        }
-        //console.log(decoded)
-
-        return decoded
-    }
-
-    // decode the remaining input string and return the most likely decoding
-    decode(): number[] {
-        // do all steps
-        while(this.next());
-        return this.get_path()
-    }
+  // decode the remaining input string and return the most likely decoding
+  decode(): number[] {
+    // do all steps
+    while(this.next());
+    return this.get_path()
+  }
 }
 
 
 
 function testEncoder() {
-    const inCode = stringToBinaryArray("Hello, Viterbi!")
+  const inCode = stringToBinaryArray("Hello, Viterbi!")
 
-    //console.log("in code length")
-    //console.log(inCode.length)
-    //console.log(inCode)
-    const encoder = Encoder.example(inCode)
+  //console.log("in code length")
+  //console.log(inCode.length)
+  //console.log(inCode)
+  const encoder = Encoder.example(inCode)
 
-    // encode the thing, and flatten to a bitstring
-    let coded: number[] = []
-    let i: number = 0
-    for (
-          let curr = encoder.next();
-          curr !== undefined;
-          curr = encoder.next()) {
-        i++
-        coded = coded.concat(curr)
+  // encode the thing, and flatten to a bitstring
+  let coded: number[] = []
+  let i: number = 0
+  for (
+    let curr = encoder.next();
+    curr !== undefined;
+    curr = encoder.next()) {
+      i++
+      coded = coded.concat(curr)
     }
     //console.log("coded length")
     //console.log(coded.length)
@@ -321,4 +327,4 @@ function testEncoder() {
 
     console.log(binaryArrayToString(decoder.decode()))
 
-}
+  }
