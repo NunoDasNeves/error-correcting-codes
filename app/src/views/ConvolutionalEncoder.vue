@@ -61,7 +61,7 @@
         Input binary:<br/>
         <InputBits :bits='encoder.input' :index="encoder.i" :K="encoder_params.K"/>
 
-        <AppButton @click.native="next" :disabled="encoder.finished">Next</AppButton>
+        <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next</AppButton>
 
         <div style="display:flex;">
           <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
@@ -129,9 +129,6 @@ export default class ConvolutionalEncoder extends Vue {
   }
   latex_polynomial_string(poly:number[]): string {
     return poly.map((a:number, i:number)=>`${a}${i ? (i > 1 ? 'x^{'+i+'}' : 'x') : ''}`).join(' + ')
-  }
-  next() {
-    EncoderModule.encoder.next()
   }
 
   decode() {

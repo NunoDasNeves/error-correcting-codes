@@ -47,8 +47,20 @@
         All possible encoder states and their outputs
         <p></p>
 
-        Trellis<br/>
-        Trellis/DP diagram
+        Trellis Diagram<br/>
+
+        <TrellisDiagram/>
+
+        <AppButton :disabled="decoder.finished" @click.native="decoder.next_state">Next State</AppButton>
+        <AppButton :disabled="decoder.finished" @click.native="decoder.next_symbol">Next Symbol</AppButton>
+        <br/>
+        <AppButton @click.native="decoder.decode">Decode</AppButton>
+        <br/>
+        The output of the decoder is the most likely sequence of bits to have caused the sequence of symbols in the presence of minimal errors.
+        <br/>
+        Most likely input string:<br/>
+
+
       </div>
 
     </section>
@@ -58,10 +70,11 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import InputErrorBits from '@/components/Decoder/InputErrorBits.vue'
+import TrellisDiagram from '@/components/Decoder/Diagram.vue'
 import { DecoderParams, DecoderModule } from '@/store/decoder.ts'
 import { Encoder, Decoder, stringToBinaryArray, binaryArrayToString } from '@/algorithms/viterbi_encoder_decoder.ts'
 
-@Component({ components: { InputErrorBits }})
+@Component({ components: { InputErrorBits, TrellisDiagram }})
 export default class ViterbiDecoder extends Vue {
   @Prop({ type: Object, default:()=>null })
   passed_params!: any
