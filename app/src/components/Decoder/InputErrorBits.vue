@@ -2,7 +2,7 @@
   <div class="binary-container">
     <div v-for="(s, i) in grouped_bits" class="symbol-item binary-item-border-left">
       <span v-for="(b, b_i) in s" v-on:click="callback(i*n+b_i)" :class="'bit-item ' + (!!errors[i*n+b_i] ? 'bit-error' : '')">
-        {{ !!errors[i*n+b_i] ? Number(!b) : b }}
+        {{ flip ? (!!errors[i*n+b_i] ? Number(!b) : b) : b }}
       </span>
     </div>
   </div>
@@ -21,6 +21,9 @@ export default class InputErrorBits extends Vue {
   n!: number
   @Prop(Function)
   callback!: any
+  // flip error bits or just highlight them
+  @Prop(Boolean)
+  flip!: boolean
 
   actual_errors: any = {}
 

@@ -10,7 +10,7 @@
         </div>
         <AppButton @click.native="start_encoder">Start Encoding</AppButton>
       </form>
-      
+
       <div v-else>
         <AppButton :type="'warning'" @click.native="stop_encoder">Stop</AppButton>
         <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
@@ -63,7 +63,16 @@
 
         <AppButton @click.native="next" :disabled="encoder.finished">Next</AppButton>
 
-        <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
+        <div style="display:flex;">
+          <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
+          <p>
+            <Math>
+              <span style='background-color:var(--color-bit-state);font-family:var(--font-monospace);'>&nbsp;</span> bits denote the current state of the encoder. There are $2^{K-1}$ states.<br/>
+              <span style='background-color:var(--color-bit-output);font-family:var(--font-monospace);'>&nbsp;</span> bits denote the current output symbol, computed based on the state bits and output bit.<br/>
+              <span style='background-color:var(--color-bit-input);font-family:var(--font-monospace);'>&nbsp;</span> is the input bit. It determines the next state the encoder will be in.<br/>
+            </Math>
+          </p>
+        </div>
 
         Output symbols:
         <OutputBits :symbols='encoder.outputs'/>
