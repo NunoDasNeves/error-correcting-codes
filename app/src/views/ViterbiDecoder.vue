@@ -3,13 +3,11 @@
     <h3>Viterbi Decoder</h3>
     <section>
 
-      <form v-if="!got_params">
+      <form v-if="!got_params && !decoder_started">
         input string: <AppInput v-model="input_string" :valid="input_string.length <= 10"/>
         <div v-if="input_string.length > 10">
           Please limit the input to 10 characters
         </div>
-        <!--K: <AppInput v-model="encoder_params.K"/>-->
-        <!--n: <AppInput v-model="encoder_params.n"/>-->
         <AppButton @click.native="encode_string">Encode</AppButton>
       </form>
 
@@ -25,7 +23,15 @@
       </form>
 
       <div v-else>
-        Input binary:<br/>
+        <AppButton :type="'warning'" @click.native="stop_decoder">Stop</AppButton>
+        <AppButton :type="'warning'" @click.native="reset_decoder">Reset</AppButton>
+        <br/>
+
+        State map<br/>
+        TODO
+        <p></p>
+
+        Trellis<br/>
         TODO
       </div>
 
@@ -64,7 +70,6 @@ export default class ViterbiDecoder extends Vue {
   }
 
   start_decoder() {
-    if (this.input_string.length == 0 || this.input_string.length > 10) return
     DecoderModule.start_decoder(this.decoder_params)
   }
   stop_decoder() {

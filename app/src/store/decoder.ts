@@ -31,11 +31,11 @@ class DecoderState extends VuexModule implements IDecoderState {
     this.decoder_started = false
   }
 
-  @Action({ commit: 'NEW_DECODER' })
+  @Action({ commit: 'START_DECODER' })
   start_decoder(params: DecoderParams) { return params }
 
   @Mutation
-  NEW_DECODER(params: DecoderParams) {
+  START_DECODER(params: DecoderParams) {
     this.decoder_obj = new Decoder(params.n, params.K, params.gen, params.input)
     this.decoder_started = true
   }

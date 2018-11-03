@@ -8,13 +8,14 @@
         <div v-if="input_string.length > 10">
           Please limit the input to 10 characters
         </div>
-        <!--K: <AppInput v-model="encoder_params.K"/>-->
-        <!--n: <AppInput v-model="encoder_params.n"/>-->
         <AppButton @click.native="start_encoder">Start Encoding</AppButton>
       </form>
+      
       <div v-else>
         <AppButton :type="'warning'" @click.native="stop_encoder">Stop</AppButton>
         <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
+        <br/>
+
         generator polynomials: {{ encoder_params.gen }}<br/>
 
         <AppSpoiler :title="'What are generator polynomials?'">
