@@ -243,9 +243,6 @@ export class Decoder {
     // return early
     if (this.finished) return false
 
-    // get reference to the array we just pushed
-    const entry: any[] = this.table[this.table.length-1]
-
     // consider the next n bits in the input
     const out_bits: number[] = this.input.slice(this.i,this.i+this.n)
 
@@ -269,7 +266,7 @@ export class Decoder {
       obj = { hamming: hamming_2, prev: prev[1], bit }
     }
 
-    entry.push(obj)
+    this.table[this.table.length - 1].push(obj)
 
     if (this.i + this.n >= this.input.length && this.curr_state + 1 >= this.N) {
       this.finished = true

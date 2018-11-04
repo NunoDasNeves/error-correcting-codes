@@ -49,7 +49,7 @@
 
         Trellis Diagram<br/>
 
-        <TrellisDiagram/>
+        <TrellisDiagram :decoder="decoder"/>
 
         <AppButton :disabled="decoder.finished" @click.native="decoder.next_state">Next State</AppButton>
         <AppButton :disabled="decoder.finished" @click.native="decoder.next_symbol">Next Symbol</AppButton>
