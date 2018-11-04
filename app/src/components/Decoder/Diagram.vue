@@ -31,7 +31,7 @@
             <g v-for="(symbol, i) in symbols" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},0)`">
               <rect
                   :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
-                  stroke='black' stroke-width='2'
+                  :stroke="i == 1 ? 'red' : 'black'" stroke-width='2'
                   fill='transparent'/>
               <text
                 :x="OUTPUT_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
@@ -72,8 +72,11 @@
               </g>
             </g>
 
-            <!-- next entry -->
-            <g :transform="`translate(${(table.length - 1)*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},${decoder.curr_state*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
+            <!-- next entry, i.e. entry corresponding to decoder.curr_state at the last position in the table -->
+            <g
+              v-if="!decoder.finished"
+              :transform="`translate(${(table.length - 1)*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},${decoder.curr_state*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`"
+              >
               <rect
                   :width="TRELLIS_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
                   stroke='red' stroke-width='2'
@@ -82,8 +85,27 @@
                 :x="TRELLIS_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
                 :style="`font-size:${FONT_SIZE_SMALL};`"
                 >
-                min({{ curr_state.prev[0].hamming }} + {{ curr_state.prev[0].add_hamming }}, {{ curr_state.prev[1].hamming }} + {{ curr_state.prev[1].add_hamming }})
+                min({{ curr_state_obj.prev[0].hamming }} + {{ curr_state_obj.prev[0].add_hamming }}, {{ curr_state_obj.prev[1].hamming }} + {{ curr_state_obj.prev[1].add_hamming }})
               </text>
+
+              <g v-for="prev_state in curr_state_obj.prev" :transform="`translate(0,${SMALL_LABEL_HEIGHT/2})`">
+                <polyline
+                  :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
+                  stroke="red" stroke-width='2' fill='transparent'/>
+                <!-- bit label -->
+                <g :transform="`translate(${-TRELLIS_HORIZ_GAP*0.8 - BIT_LABEL_WIDTH/2}, ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)*0.8 - SMALL_LABEL_HEIGHT/2})`">
+                  <rect
+                    :width="BIT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
+                    stroke='red' stroke-width='2'
+                    fill='white'/>
+                  <text
+                    :x="BIT_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                    :style="`font-size:${FONT_SIZE_SMALL};`"
+                    class="decoder-svg-text">
+                    {{ curr_state_obj.bit }}
+                  </text>
+                </g>
+              </g>
             </g>
 
           </g>
@@ -105,8 +127,8 @@ export default class TrellisDiagram extends Vue {
   @Prop(Object)
   decoder!: Decoder
 
-  // useful stuff for curr state label etc
-  get curr_state(): any {
+  // useful stuff for curr state
+  get curr_state_obj(): any {
     // just state as a number
     const index: number = this.decoder.curr_state
     // bit transitioned on to get to this state
@@ -175,6 +197,7 @@ export default class TrellisDiagram extends Vue {
   OUTPUT_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.CHAR_WIDTH*(this.decoder.n)
   TRELLIS_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.CHAR_WIDTH*(this.decoder.K - 1)
   SMALL_LABEL_HEIGHT:number = this.SQUARE_WIDTH*2/3
+  BIT_LABEL_WIDTH:number = this.CHAR_WIDTH*4
 
 
 }
