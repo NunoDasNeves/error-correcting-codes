@@ -59,7 +59,7 @@
         The output of the decoder is the most likely sequence of bits to have caused the sequence of symbols in the presence of minimal errors.
         <br/>
         Most likely input string:<br/>
-
+        "{{ decoded_string }}"
 
       </div>
 
@@ -96,6 +96,10 @@ export default class ViterbiDecoder extends Vue {
 
   get decoder_started(): boolean {
     return DecoderModule.decoder_started
+  }
+
+  get decoded_string(): string[] {
+    return this.decoder.likely_decodings.map(binaryArrayToString)
   }
 
   toggle_error(index: number) {
@@ -147,7 +151,6 @@ export default class ViterbiDecoder extends Vue {
     this.decoder_params.input = encoder.encodeAndFlatten()
     this.got_params = true
   }
-
 
 }
 </script>

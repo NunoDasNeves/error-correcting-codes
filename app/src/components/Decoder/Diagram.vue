@@ -81,8 +81,13 @@ export default class TrellisDiagram extends Vue {
   @Prop(Object)
   decoder!: Decoder
 
+  // starting index of current view into table/symbols
+  get curr_i(): number {
+    return Math.max(0, this.decoder.i - this.decoder.n)
+  }
+
   get table(): number[][] {
-    return this.decoder.table.slice(-3)
+    return this.decoder.table.slice(this.curr_i/this.decoder.n, this.curr_i/this.decoder.n + 4)
   }
 
   // array of numbered states for convenience
@@ -92,7 +97,7 @@ export default class TrellisDiagram extends Vue {
 
   get symbols(): number[][] {
     return this.decoder.input
-      .slice(Math.max(0, this.decoder.i - this.decoder.n*2), this.decoder.i + this.decoder.n*4)
+      .slice(this.curr_i, this.curr_i + this.decoder.n*3)
       .reduce((acc: number[][], curr: number, i: number) => {
       if (i % this.decoder.n == 0) {
         acc.push([])

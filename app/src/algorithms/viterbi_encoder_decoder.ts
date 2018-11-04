@@ -167,6 +167,8 @@ export class Decoder {
   // bit is the bit that was most likely transitioned on to get to this state
   table: any[][] = []
   finished: boolean = false
+  // all most likely decodings if there are multiple with equal probability
+  likely_decodings: number[][] = []
 
   constructor(n: number, K: number, gen: number[][], input: number[]) {
     this.n = n
@@ -178,6 +180,7 @@ export class Decoder {
   }
 
   reset() {
+    this.likely_decodings = []
     this.curr_state = 0
     this.i = 0
     this.finished = false
@@ -295,40 +298,45 @@ export class Decoder {
     do {
       // always advance at least one state
       ret = this.next_state()
-      // continue until next output symbol
-    } while(old_i == this.i)
+      // continue until next output symbol, or until finished
+    } while(old_i == this.i && ret)
 
     // return whatever next_state returned
     return ret
   }
 
   // get the path through the filled-in table
-  get_path(): number[] {
+  get_path(): number[][] {
     //console.log("table length")
     //console.log(this.table.length)
     //console.log(this.table)
-    let decoded: number[] = []
 
-    // find argmin of hamming distance of last entry in table
-    let curr: number = 0
+    // find list of equal, minimal hamming distance states from last entry in table
     let min: number = Number.MAX_SAFE_INTEGER
     for (let i: number = 0; i < this.N; ++i) {
       const hamming: number = this.table[this.table.length -1][i].hamming
-      curr = hamming < min ? i : curr
       min = hamming < min ? hamming : min
     }
+    const min_states: number[] = this.table[this.table.length - 1].filter(curr => curr.hamming == min).map((curr, s) => s)
 
-    for (let i: number = this.table.length-1; i > 0; --i) {
-      decoded[i-1] = this.table[i][curr].bit
-      curr = this.table[i][curr].prev
+    this.likely_decodings = []
+
+    for (let s of min_states) {
+      console.log("s is "+s)
+      const decoded: number[] = []
+
+      for (let i: number = this.table.length-1; i > 0; --i) {
+        decoded[i-1] = this.table[i][s].bit
+        s = this.table[i][s].prev
+      }
+      this.likely_decodings.push(decoded)
     }
-    //console.log(decoded)
 
-    return decoded
+    return this.likely_decodings
   }
 
   // decode the remaining input symbols and return the most likely decoding
-  decode(): number[] {
+  decode(): number[][] {
     // do all steps
     while(this.next_symbol());
     return this.get_path()
@@ -368,7 +376,5 @@ function testEncoder() {
     //coded[23] = ~coded[23] // this will cause an error as
 
     const decoder = Decoder.example(coded)
-
-    console.log(binaryArrayToString(decoder.decode()))
 
   }
