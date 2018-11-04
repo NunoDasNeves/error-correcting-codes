@@ -48,18 +48,42 @@
 
             <!-- table entries -->
             <g v-for="(entry, i) in table" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},0)`">
+              <!-- trellis labels -->
               <g v-for="(state, j) in entry" :transform="`translate(0,${j*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
                 <rect
                     :width="TRELLIS_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
                     stroke='black' stroke-width='2'
                     fill='transparent'/>
                 <text
+                  v-if="state.hamming < Number.MAX_SAFE_INTEGER"
                   :x="TRELLIS_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
                   :style="`font-size:${FONT_SIZE_SMALL};`"
                   >
                   {{ state.hamming }}
                 </text>
               </g>
+
+              <!-- trellis links -->
+              <g v-for="(state, j) in entry" v-if="i > 0" :transform="`translate(0,${SMALL_LABEL_HEIGHT/2 + j*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
+                <polyline
+                  v-if="table[i-1][state.prev].hamming < Number.MAX_SAFE_INTEGER"
+                  :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(state.prev - j)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
+                  stroke="black" stroke-width='2' fill='transparent'/>
+              </g>
+            </g>
+
+            <!-- next entry -->
+            <g :transform="`translate(${(table.length - 1)*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},${decoder.curr_state*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
+              <rect
+                  :width="TRELLIS_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
+                  stroke='red' stroke-width='2'
+                  fill='transparent'/>
+              <text
+                :x="TRELLIS_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                :style="`font-size:${FONT_SIZE_SMALL};`"
+                >
+                min({{ curr_state.prev[0].hamming }} + {{ curr_state.prev[0].add_hamming }}, {{ curr_state.prev[1].hamming }} + {{ curr_state.prev[1].add_hamming }})
+              </text>
             </g>
 
           </g>
@@ -80,6 +104,29 @@ import { Decoder, numberToArray } from '@/algorithms/viterbi_encoder_decoder.ts'
 export default class TrellisDiagram extends Vue {
   @Prop(Object)
   decoder!: Decoder
+
+  // useful stuff for curr state label etc
+  get curr_state(): any {
+    // just state as a number
+    const index: number = this.decoder.curr_state
+    // bit transitioned on to get to this state
+    const bit: number = this.decoder.get_prev_bit(index)
+    // states we possibly transitioned from
+    const prev_states: number[] = this.decoder.get_prev(index)
+    // more info about those states..
+    const prev: any[] = prev_states.map(s => ({
+      state: s,
+      hamming: this.decoder.table[this.decoder.table.length - 2][s].hamming,
+      output: this.decoder.graph[s].output[bit],
+      add_hamming: this.decoder.hamming(this.symbols[1], this.decoder.graph[s].output[bit])
+    }))
+
+   return {
+     index,
+     bit,
+     prev
+   }
+  }
 
   // starting index of current view into table/symbols
   get curr_i(): number {

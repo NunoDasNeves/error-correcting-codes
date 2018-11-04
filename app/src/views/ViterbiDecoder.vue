@@ -156,5 +156,7 @@ export default class ViterbiDecoder extends Vue {
 </script>
 
 <style scoped lang="less">
-
+section {
+  background: var(--color-white);
+}
 </style>
