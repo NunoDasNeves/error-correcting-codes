@@ -317,12 +317,14 @@ export class Decoder {
       const hamming: number = this.table[this.table.length -1][i].hamming
       min = hamming < min ? hamming : min
     }
-    const min_states: number[] = this.table[this.table.length - 1].filter(curr => curr.hamming == min).map((curr, s) => s)
+    const min_states: number[] = this.table[this.table.length - 1]
+      .map(({ hamming }, state) => ({ hamming, state }))
+      .filter(curr => curr.hamming == min)
+      .map((curr) => curr.state)
 
     this.likely_decodings = []
 
     for (let s of min_states) {
-      console.log("s is "+s)
       const decoded: number[] = []
 
       for (let i: number = this.table.length-1; i > 0; --i) {
