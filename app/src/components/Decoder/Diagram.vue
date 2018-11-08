@@ -48,7 +48,7 @@
             <g v-for="(symbol, i) in symbols" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},0)`">
               <rect
                   :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
-                  :stroke="i == 1 && !decoder.finished ? 'red' : 'black'" stroke-width='2'
+                  :stroke="(((decoder.table.length <= 2 && i == 0) || (decoder.table.length > 2 && i == 1)) && !decoder.finished) ? 'red' : 'black'" stroke-width='2'
                   fill='white'/>
               <text
                 :x="OUTPUT_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
@@ -115,7 +115,7 @@
                 :style="`font-size:${FONT_SIZE_SMALL};`"
                 >
                 <tspan text-anchor="middle">
-                  min({{ curr_state_obj.prev[0].hamming }} + {{ curr_state_obj.prev[0].add_hamming }}, {{ curr_state_obj.prev[1].hamming }} + {{ curr_state_obj.prev[1].add_hamming }})
+                  {{ get_curr_state_text(curr_state_obj) }}
                 </tspan>
               </text>
 
@@ -212,6 +212,16 @@ export default class TrellisDiagram extends Vue {
       acc[acc.length - 1].push(curr)
       return acc
     }, [])
+  }
+
+  get_curr_state_text(): string {
+    const prev:any[] = this.curr_state_obj.prev.filter((curr:any) => curr.hamming < Number.MAX_SAFE_INTEGER)
+    if (prev.length == 0) {
+      return "N/A"
+    } else if (prev.length == 1) {
+      return `${prev[0].hamming} + ${prev[0].add_hamming}`
+    }
+    return `min(${this.curr_state_obj.prev[0].hamming} + ${this.curr_state_obj.prev[0].add_hamming}, ${this.curr_state_obj.prev[1].hamming} + ${this.curr_state_obj.prev[1].add_hamming})`
   }
 
   numberToArray(s: number) :number[] { return numberToArray(s, this.decoder.K - 1) }

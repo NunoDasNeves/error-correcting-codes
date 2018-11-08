@@ -1,8 +1,15 @@
 <template>
   <div class="binary-container">
-    <div v-for="(s, i) in grouped_bits" class="symbol-item binary-item-border-left">
-      <span v-for="(b, b_i) in s" v-on:click="callback(i*n+b_i)" :class="'bit-item ' + (!!errors[i*n+b_i] ? 'bit-error' : '')">
-        {{ flip ? (!!errors[i*n+b_i] ? Number(!b) : b) : b }}
+    <div v-for="(s, i) in grouped_bits">
+      <span
+        :class="'symbol-item ' + (!flip && i == curr_symbol ? 'binary-item-border-selected' : 'binary-item-border')"
+      >
+        <span
+          v-for="(b, b_i) in s" v-on:click="callback(i*n+b_i)"
+          :class="'bit-item ' + (!!errors[i*n+b_i] ? 'bit-error' : '')"
+          >
+          {{ flip ? (!!errors[i*n+b_i] ? Number(!b) : b) : b }}
+        </span>
       </span>
     </div>
   </div>
@@ -24,6 +31,9 @@ export default class InputErrorBits extends Vue {
   // flip error bits or just highlight them
   @Prop(Boolean)
   flip!: boolean
+  // border around selected item, applied if !flip
+  @Prop({ type: Number, default: -1 })
+  curr_symbol!: number
 
   actual_errors: any = {}
 
@@ -60,13 +70,14 @@ export default class InputErrorBits extends Vue {
 }
 
 // top right bottom left
-.binary-item-border-left {
+.binary-item-border {
     border: solid black;
     border-width: 1px 1px 1px 1px;
 }
-.binary-item-border {
-    border: solid black;
-    border-width: 1px 1px 1px 0;
+.binary-item-border-selected {
+    border: solid red;
+    border-width: 1px 1px 1px 1px;
 }
+
 
 </style>

@@ -136,6 +136,7 @@ export default class ViterbiDecoder extends Vue {
     if (this.passed_params) {
       this.decoder_params = this.passed_params
       this.got_params = true
+      DecoderModule.stop_decoder()
     }
   }
 
