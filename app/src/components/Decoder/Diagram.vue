@@ -1,8 +1,8 @@
 <template>
   <div>
     <AppSvg
-      :width="STATE_LABEL_WIDTH + STATES_TRELLIS_GAP + TRELLIS_LABEL_WIDTH + (TRELLIS_LABEL_WIDTH + TRELLIS_HORIZ_GAP)*5 + MARGIN*2"
-      :height="TRELLIS_OFFSET + states.length*(SQUARE_WIDTH + TRELLIS_VERT_GAP) + MARGIN*2">
+      :width="STATE_LABEL_WIDTH + STATES_TRELLIS_GAP + (TRELLIS_LABEL_WIDTH + TRELLIS_HORIZ_GAP)*3 + MARGIN*2"
+      :height="TRELLIS_OFFSET + states.length*(SQUARE_WIDTH + TRELLIS_VERT_GAP) - TRELLIS_VERT_GAP + MARGIN*2">
 
       <g :transform="`translate(${MARGIN},${MARGIN})`">
 
