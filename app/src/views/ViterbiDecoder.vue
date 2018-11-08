@@ -41,13 +41,8 @@
           :errors="errors"
           :callback="() => ({})"
           :flip="false"
+          :curr_symbol="decoder.i/decoder.n"
           />
-
-        State map:<br/>
-        All possible encoder states and their outputs
-        <p></p>
-
-        Trellis Diagram<br/>
 
         <TrellisDiagram :decoder="decoder"/>
 
@@ -133,7 +128,6 @@ export default class ViterbiDecoder extends Vue {
     DecoderModule.stop_decoder()
   }
   reset_decoder() {
-    this.apply_errors()
     this.decoder.reset()
   }
 

@@ -12,18 +12,35 @@
             <rect
                 :width="STATE_LABEL_WIDTH" :height="SQUARE_WIDTH"
                 stroke='black' stroke-width='2'
-                fill='transparent'/>
+                fill='white'/>
             <text
-              :x="SQUARE_WIDTH*0.3" :y="SQUARE_WIDTH*0.76"
+              :x="STATE_LABEL_WIDTH/2" :y="SQUARE_WIDTH*TEXT_BOX_VERT"
               :style="`font-size:${FONT_SIZE};`"
               class="decoder-svg-text">
-              {{ numberToArray(s).join('') }}
+              <tspan text-anchor="middle">
+                {{ numberToArray(s).join('') }}
+              </tspan>
             </text>
           </g>
         </g>
 
-        <!-- trellis with output labels -->
+        <!-- background rectangles -->
+        <g
+          v-for="_, s in states"
+          :transform="`translate(${STATE_LABEL_WIDTH + STATES_TRELLIS_GAP/2},${TRELLIS_OFFSET + s*SQUARE_WIDTH*2})`">
+          <rect
+              :width="3*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)" :height="SQUARE_WIDTH"
+              fill='var(--color-light-gray)'/>
+        </g>
+
+
+        <!-- trellis including output labels -->
         <g :transform="`translate(${STATE_LABEL_WIDTH + STATES_TRELLIS_GAP},0)`">
+
+          <!--rect
+              :width="CHAR_WIDTH" :height="SMALL_LABEL_HEIGHT"
+              stroke="black" stroke-width='2'
+              fill='white'/-->
 
           <!-- output labels -->
           <g :transform="`translate(${TRELLIS_LABEL_WIDTH + TRELLIS_HORIZ_GAP/2 - OUTPUT_LABEL_WIDTH/2},0)`">
@@ -31,13 +48,15 @@
             <g v-for="(symbol, i) in symbols" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},0)`">
               <rect
                   :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
-                  :stroke="i == 1 ? 'red' : 'black'" stroke-width='2'
-                  fill='transparent'/>
+                  :stroke="i == 1 && !decoder.finished ? 'red' : 'black'" stroke-width='2'
+                  fill='white'/>
               <text
-                :x="OUTPUT_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                :x="OUTPUT_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
                 :style="`font-size:${FONT_SIZE_SMALL};`"
                 class="decoder-svg-text">
-                {{ symbol.join('') }}
+                <tspan text-anchor="middle">
+                  {{ symbol.join('') }}
+                </tspan>
               </text>
             </g>
 
@@ -53,14 +72,23 @@
                 <rect
                     :width="TRELLIS_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
                     stroke='black' stroke-width='2'
-                    fill='transparent'/>
+                    fill='white'/>
                 <text
                   v-if="state.hamming < Number.MAX_SAFE_INTEGER"
-                  :x="TRELLIS_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                  :x="TRELLIS_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
                   :style="`font-size:${FONT_SIZE_SMALL};`"
                   >
-                  {{ state.hamming }}
+                  <tspan text-anchor="middle">
+                    {{ state.hamming }}
+                  </tspan>
                 </text>
+                <!-- invalid states -->
+                <g
+                  :transform="`translate(${TRELLIS_LABEL_WIDTH*0.28},${SMALL_LABEL_HEIGHT*0.125})`"
+                  v-if="state.hamming >= Number.MAX_SAFE_INTEGER"
+                  >
+                    <text fill="red" font-size="2.5em" rotate="90">X</text>
+                </g>
               </g>
 
               <!-- trellis links -->
@@ -68,6 +96,7 @@
                 <polyline
                   v-if="table[i-1][state.prev].hamming < Number.MAX_SAFE_INTEGER"
                   :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(state.prev - j)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
+                  :stroke-dasharray="`${state.bit ? 'none' : DASH_ARRAY}`"
                   stroke="black" stroke-width='2' fill='transparent'/>
               </g>
             </g>
@@ -78,31 +107,40 @@
               :transform="`translate(${(table.length - 1)*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},${decoder.curr_state*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`"
               >
               <rect
-                  :width="TRELLIS_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
+                  :width="TRELLIS_LABEL_WIDTH*2.5" :height="SMALL_LABEL_HEIGHT"
                   stroke='red' stroke-width='2'
-                  fill='transparent'/>
+                  fill='white'/>
               <text
-                :x="TRELLIS_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                :x="TRELLIS_LABEL_WIDTH*2.5/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
                 :style="`font-size:${FONT_SIZE_SMALL};`"
                 >
-                min({{ curr_state_obj.prev[0].hamming }} + {{ curr_state_obj.prev[0].add_hamming }}, {{ curr_state_obj.prev[1].hamming }} + {{ curr_state_obj.prev[1].add_hamming }})
+                <tspan text-anchor="middle">
+                  min({{ curr_state_obj.prev[0].hamming }} + {{ curr_state_obj.prev[0].add_hamming }}, {{ curr_state_obj.prev[1].hamming }} + {{ curr_state_obj.prev[1].add_hamming }})
+                </tspan>
               </text>
 
-              <g v-for="prev_state in curr_state_obj.prev" :transform="`translate(0,${SMALL_LABEL_HEIGHT/2})`">
+              <g
+                v-for="prev_state in curr_state_obj.prev"
+                v-if="prev_state.hamming < Number.MAX_SAFE_INTEGER"
+                :transform="`translate(0,${SMALL_LABEL_HEIGHT/2})`"
+                >
                 <polyline
                   :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
+                  :stroke-dasharray="`${curr_state_obj.bit ? 'none' : DASH_ARRAY}`"
                   stroke="red" stroke-width='2' fill='transparent'/>
-                <!-- bit label -->
-                <g :transform="`translate(${-TRELLIS_HORIZ_GAP*0.8 - BIT_LABEL_WIDTH/2}, ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)*0.8 - SMALL_LABEL_HEIGHT/2})`">
+                <!-- output label -->
+                <g :transform="`translate(${-TRELLIS_HORIZ_GAP*0.7 - OUTPUT_LABEL_WIDTH/2}, ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)*0.7 - SMALL_LABEL_HEIGHT/2})`">
                   <rect
-                    :width="BIT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
+                    :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
                     stroke='red' stroke-width='2'
                     fill='white'/>
                   <text
-                    :x="BIT_LABEL_WIDTH*0.3" :y="SMALL_LABEL_HEIGHT*0.76"
+                    :x="OUTPUT_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
                     :style="`font-size:${FONT_SIZE_SMALL};`"
                     class="decoder-svg-text">
-                    {{ curr_state_obj.bit }}
+                    <tspan text-anchor="middle">
+                      {{ prev_state.output.join('') }}
+                    </tspan>
                   </text>
                 </g>
               </g>
@@ -193,11 +231,16 @@ export default class TrellisDiagram extends Vue {
   STATE_CHAR_WIDTH: number = 32*this.SCALING_FACTOR
   STATE_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.STATE_CHAR_WIDTH*(this.decoder.K - 1)
 
-  CHAR_WIDTH: number = 24*this.SCALING_FACTOR
-  OUTPUT_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.CHAR_WIDTH*(this.decoder.n)
+  CHAR_WIDTH: number = 46*this.SCALING_FACTOR
+  OUTPUT_LABEL_WIDTH:number = this.CHAR_WIDTH*(this.decoder.n + 2)
   TRELLIS_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.CHAR_WIDTH*(this.decoder.K - 1)
   SMALL_LABEL_HEIGHT:number = this.SQUARE_WIDTH*2/3
   BIT_LABEL_WIDTH:number = this.CHAR_WIDTH*4
+
+  // textboxheight * TEXT_BOX_VERT is where text should start on y axis
+  TEXT_BOX_VERT: number = 0.75
+
+  DASH_ARRAY:number = 6
 
 
 }
