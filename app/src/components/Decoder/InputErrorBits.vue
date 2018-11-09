@@ -76,7 +76,7 @@ export default class InputErrorBits extends Vue {
 }
 .binary-item-border-selected {
     border: solid red;
-    border-width: 1px 1px 1px 1px;
+    border-width: 2px 2px 2px 2px;
 }
 
 

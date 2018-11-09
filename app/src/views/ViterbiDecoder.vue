@@ -34,7 +34,7 @@
         <AppButton :type="'warning'" @click.native="stop_decoder">Stop</AppButton>
         <AppButton :type="'warning'" @click.native="reset_decoder">Reset</AppButton>
         <br/>
-        Input binary:<br/>
+        Input symbols:<br/>
         <InputErrorBits
           :bits="decoder_params.input"
           :n="decoder_params.n"
@@ -43,6 +43,8 @@
           :flip="false"
           :curr_symbol="decoder.i/decoder.n"
           />
+
+        <AppSpoiler :title="'Trellis Diagram'"><TrellisDiagramInfo/></AppSpoiler>
 
         <TrellisDiagram :decoder="decoder"/>
 
@@ -66,10 +68,11 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import InputErrorBits from '@/components/Decoder/InputErrorBits.vue'
 import TrellisDiagram from '@/components/Decoder/Diagram.vue'
+import TrellisDiagramInfo from '@/components/Decoder/DiagramInfo.vue'
 import { DecoderParams, DecoderModule } from '@/store/decoder.ts'
 import { Encoder, Decoder, stringToBinaryArray, binaryArrayToString } from '@/algorithms/viterbi_encoder_decoder.ts'
 
-@Component({ components: { InputErrorBits, TrellisDiagram }})
+@Component({ components: { InputErrorBits, TrellisDiagram, TrellisDiagramInfo }})
 export default class ViterbiDecoder extends Vue {
   @Prop({ type: Object, default:()=>null })
   passed_params!: any
