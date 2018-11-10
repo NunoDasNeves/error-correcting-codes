@@ -17,7 +17,7 @@ export default class AppInput extends Vue {
 
 <style scoped>
 input[type=text] {
-  border: var(--border);
+  border: var(--border-dark);
   border-radius: 2px;
   font: inherit;
   resize: none;

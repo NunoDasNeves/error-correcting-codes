@@ -4,15 +4,16 @@
     <section>
 
       <form v-if="!encoder_started">
-        input string: <AppInput v-model="input_string" :valid="input_string.length <= 10"/>
-        <div v-if="input_string.length > 10">
-          Please limit the input to 10 characters
+        Type a (short) input string:<br/>
+        <AppInput v-model="input_string" :valid="input_string.length <= MAX_INPUT_CHARS" style="width:40px;"/><br/>
+        <div v-if="input_string.length > MAX_INPUT_CHARS">
+          Please limit the input to {{ MAX_INPUT_CHARS }} characters
         </div>
-        <AppButton @click.native="start_encoder">Start Encoding</AppButton>
+        <AppButton @click.native="start_encoder" :type="'green'">Start Encoding</AppButton>
       </form>
 
       <div v-else>
-        <AppButton :type="'warning'" @click.native="stop_encoder">Stop</AppButton>
+        <AppButton :type="'warning'" @click.native="stop_encoder">Back</AppButton>
         <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
         <br/>
 
@@ -61,7 +62,8 @@
         Input binary:<br/>
         <InputBits :bits='encoder.input' :index="encoder.i" :K="encoder_params.K"/>
 
-        <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next</AppButton>
+        <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next Bit ></AppButton>
+        <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
 
         <div style="display:flex;">
           <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
@@ -77,7 +79,7 @@
         Output symbols:
         <OutputBits :symbols='encoder.outputs'/>
 
-        <AppButton @click.native="decode" :disabled="!encoder.finished">Decode</AppButton>
+        <AppButton @click.native="decode" :disabled="!encoder.finished" :type="'green'">Decode</AppButton>
 
       </div>
     </section>
@@ -100,6 +102,7 @@ export default class ConvolutionalEncoder extends Vue {
                     n: 3,
                     gen: [[1,1,1], [0,1,1], [1,0,1]]
                     }
+  MAX_INPUT_CHARS: number = 4
 
   get encoder(): Encoder {
     return EncoderModule.encoder
@@ -117,7 +120,7 @@ export default class ConvolutionalEncoder extends Vue {
   }
 
   start_encoder() {
-    if (this.input_string.length == 0 || this.input_string.length > 10) return
+    if (this.input_string.length == 0 || this.input_string.length > this.MAX_INPUT_CHARS) return
     this.encoder_params.input = stringToBinaryArray(this.input_string)
     EncoderModule.start_encoder(this.encoder_params)
   }

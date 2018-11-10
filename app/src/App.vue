@@ -22,7 +22,9 @@
   --color-invalid: #f36015;
   --color-warning: var(--color-invalid);
   --color-warning-light: #ff9552;
+  --color-dark-green: #55cc11;
   --color-green: #33cc33;
+  --color-light-green: #66ee66;
   --color-light-blue: #1144ff;
 
   --color-bit-input: #ff8888;

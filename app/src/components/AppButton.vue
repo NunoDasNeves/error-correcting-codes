@@ -65,4 +65,15 @@ button:disabled {
 .warning-button:hover {
     box-shadow: var(--box-shadow-active);
 }
+
+.green-button {
+    background-color: var(--color-dark-green);
+    color: var(--color-white);
+    border: none;
+}
+
+.warning-button:hover {
+    box-shadow: 0px 0px 0px 1px var(--color-green);
+}
+
 </style>
