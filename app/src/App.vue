@@ -22,6 +22,8 @@
   --color-invalid: #f36015;
   --color-warning: var(--color-invalid);
   --color-warning-light: #ff9552;
+  --color-green: #33cc33;
+  --color-light-blue: #1144ff;
 
   --color-bit-input: #ff8888;
   --color-bit-state: #8888ff;

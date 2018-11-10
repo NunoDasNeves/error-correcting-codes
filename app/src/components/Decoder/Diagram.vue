@@ -72,7 +72,7 @@
             <g v-for="(symbol, i) in symbols" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_LABEL_WIDTH)},0)`">
               <rect
                   :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
-                  :stroke="(((decoder.table.length <= 2 && i == 0) || (decoder.table.length > 2 && i == 1)) && !decoder.finished) ? 'red' : 'black'" stroke-width='2'
+                  :stroke="(((decoder.table.length <= 2 && i == 0) || (decoder.table.length > 2 && i == 1)) && !decoder.finished) ? 'var(--color-green)' : 'black'" stroke-width='2'
                   fill='white'/>
               <text
                 :x="OUTPUT_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
@@ -108,10 +108,10 @@
                 </text>
                 <!-- invalid states -->
                 <g
-                  :transform="`translate(${TRELLIS_LABEL_WIDTH/2},${SMALL_LABEL_HEIGHT*0.02})`"
+                  :transform="`translate(${TRELLIS_LABEL_WIDTH/2},${SMALL_LABEL_HEIGHT*TEXT_BOX_VERT})`"
                   v-if="state.hamming >= Number.MAX_SAFE_INTEGER"
                   >
-                    <text fill="red" font-size="2.5em" rotate="90"><tspan text-anchor="middle">X</tspan></text>
+                    <text fill="red" font-size="1.5em" ><tspan text-anchor="middle">X</tspan></text>
                 </g>
               </g>
 
@@ -133,7 +133,7 @@
               <!-- label -->
               <rect
                   :width="curr_state_width" :height="SMALL_LABEL_HEIGHT"
-                  stroke='red' stroke-width='2'
+                  stroke='var(--color-light-blue)' stroke-width='2'
                   fill='white'/>
               <text
                 :x="curr_state_width/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"
@@ -153,13 +153,13 @@
                 <polyline
                   :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
                   :stroke-dasharray="`${curr_state_obj.bit ? 'none' : DASH_ARRAY}`"
-                  stroke="red" stroke-width='2' fill='transparent'/>
+                  stroke="var(--color-light-blue)" stroke-width='2' fill='transparent'/>
 
                 <!-- output label -->
                 <g :transform="`translate(${-TRELLIS_HORIZ_GAP*0.7 - OUTPUT_LABEL_WIDTH/2}, ${(prev_state.state - decoder.curr_state)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)*0.7 - SMALL_LABEL_HEIGHT/2})`">
                   <rect
                     :width="OUTPUT_LABEL_WIDTH" :height="SMALL_LABEL_HEIGHT"
-                    stroke='red' stroke-width='2'
+                    stroke='var(--color-light-blue)' stroke-width='2'
                     fill='white'/>
                   <text
                     :x="OUTPUT_LABEL_WIDTH/2" :y="SMALL_LABEL_HEIGHT*TEXT_BOX_VERT"

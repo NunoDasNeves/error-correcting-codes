@@ -240,6 +240,29 @@ export class Decoder {
     return s >> this.K-2
   }
 
+  // go back a state ... don't compute anything
+  prev_state(): void {
+    if (this.finished) {
+      this.finished = false
+      this.likely_decodings = []
+      this.table[this.table.length - 1].pop()
+      return
+    }
+    if (this.curr_state - 1 < 0) {
+      // if we're not in the first entry, go back
+      if (this.i >= this.n) {
+        this.table.pop()
+        this.i -= this.n
+
+        this.table[this.table.length - 1].pop()
+        this.curr_state = this.N - 1
+      }
+    } else {
+      this.table[this.table.length - 1].pop()
+      this.curr_state--
+    }
+  }
+
   // complete current state. return true if there are more states to do
   next_state(): boolean {
 

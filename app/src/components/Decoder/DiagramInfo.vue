@@ -1,15 +1,16 @@
 <template>
   <div>
-    This diagram is a visualisation of using the Viterbit Algorithm to decode Convolutional Codes.
+    This diagram is a visualisation of using the Viterbi Algorithm to decode a Convolutional Code.
     <p></p>
     Each row corresponds to one of <Math>$2^{K-1}$</Math> possible encoder states.<br/>
     The symbols listed across the top represent the encoder output.<br/>
     Each table entry contains the minimal accumulated Hamming distance (essentially a likelihood) for the encoder being the corresponding state, given the assumption of minimal errors.<br/>
     <p></p>
 
-    The entry being computed is denoted with <span style="color:blue;">blue</span> colouring.<br/>
+    The next entry to be computed is denoted with <span style="color:var(--color-light-blue);font-weight:bold;">blue</span> colouring.<br/>
+    The symbol currently being considered is denoted with <span style="color:var(--color-green);font-weight:bold;">green</span> colouring.<br/>
     Up to two lines connect the current entry to the possible previous states, labels on the lines show the output the encoder would have produced along that transition.<br/>
-    The Hamming distance between these 'expected' symbols and the actual output is the cost function of the algorithm.<br/>
+    The Hamming distance $h(x)$ between these symbols and the actual output is the cost function of the algorithm:<br/>
     <Math>$$
       \boldsymbol{x} = x_1, x_2, ..., x_k \\
       \boldsymbol{y} = y_1, y_2, ..., y_k \\
@@ -18,7 +19,7 @@
       $$</Math>
     <p></p>
 
-    Since we know the encoder's initial state, some states are impossible to be in at early stages of decoding. These states are denoted with:<br/>
+    Since we know the encoder's initial state, some states are impossible for it to be in at early stages of decoding. These states are denoted with:<br/>
     <AppSvg
     :width="TRELLIS_LABEL_WIDTH + MARGIN*2"
     :height="SMALL_LABEL_HEIGHT + MARGIN*2">
@@ -29,9 +30,9 @@
           stroke='black' stroke-width='2'
           fill='white'/>
         <g
-          :transform="`translate(${TRELLIS_LABEL_WIDTH/2},${SMALL_LABEL_HEIGHT*0.02})`"
+          :transform="`translate(${TRELLIS_LABEL_WIDTH/2},${SMALL_LABEL_HEIGHT*TEXT_BOX_VERT})`"
           >
-            <text fill="red" font-size="2.5em" rotate="90"><tspan text-anchor="middle">X</tspan></text>
+            <text fill="red" font-size="1.5em"><tspan text-anchor="middle">X</tspan></text>
         </g>
       </g>
     </AppSvg>
@@ -76,6 +77,8 @@ export default class TrellisDiagramInfo extends Vue {
   OUTPUT_LABEL_WIDTH:number = this.CHAR_WIDTH*5
   TRELLIS_LABEL_WIDTH:number = this.SQUARE_WIDTH + this.CHAR_WIDTH*3
   SMALL_LABEL_HEIGHT:number = this.SQUARE_WIDTH * 2/3
+
+  TEXT_BOX_VERT: number = 0.75
 
   // svg stroke-dasharray property
   DASH_ARRAY:number = 6

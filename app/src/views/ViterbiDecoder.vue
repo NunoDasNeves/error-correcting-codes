@@ -48,8 +48,9 @@
 
         <TrellisDiagram :decoder="decoder"/>
 
-        <AppButton :disabled="decoder.finished" @click.native="decoder.next_state">Next State</AppButton>
-        <AppButton :disabled="decoder.finished" @click.native="decoder.next_symbol">Next Symbol</AppButton>
+        <AppButton :disabled="decoder.i == 0 && decoder.curr_state == 0" @click.native="decoder.prev_state">< Previous State</AppButton>
+        <AppButton :disabled="decoder.finished" @click.native="decoder.next_state">Next State ></AppButton>
+        <AppButton :disabled="decoder.finished" @click.native="decoder.next_symbol">Next Symbol >></AppButton>
         <br/>
         <AppButton @click.native="decoder.decode">Decode</AppButton>
         <br/>
