@@ -4,6 +4,7 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/encoder">Convolutional Encoder</router-link> |
       <router-link to="/decoder">Viterbi Decoder</router-link>
+      <router-link to="/reed-solomon">Reed-Solomon Codes</router-link>
     </div>
     <router-view/>
   </div>
