@@ -14,6 +14,13 @@ function reduce_frac(frac:number[]): number[] {
   return [frac[0]/div, frac[1]/div]
 }
 
+// add fraction without reducing
+function add_frac(a:number[], b:number[]) {
+  if (a[0] === 0) return b
+  if (b[0] === 0) return a
+  return [a[0]*b[1] + b[0]*a[1], a[1]*b[1]]
+}
+
 // random adjacency matrix for a directed graph with N nodes
 export function random_graph(N: number): number[][] {
   // N x N zero-filled matrix
@@ -45,7 +52,7 @@ export function get_G2_matrix(g1: number[][][]): number[][][] {
   })
 }
 
-// alpha as a fraction... array thing
+// alpha as a fraction array thing
 export function get_G_matrix(g2: number[][][], alpha: number[]): number[][][] {
   // 1 - alpha
   const inv_alpha: number[] = [alpha[1] - alpha[0], alpha[1]]
@@ -67,9 +74,21 @@ export function get_G_matrix(g2: number[][][], alpha: number[]): number[][][] {
           // alpha / num_links_from_this_page
           const alpha_links: number[] = reduce_frac([alpha[0], alpha[1]*el[1]])
           // fraction addition!
-          return reduce_frac([alpha_links[0]*inv_alpha_N[1] + inv_alpha_N[0]*alpha_links[1], alpha_links[1]*inv_alpha_N[1]])
+          return reduce_frac(add_frac(alpha_links, inv_alpha_N))
         }
       })
     }
   })
+}
+
+// multiply the row vector rho by g, producing a new row vector
+export function pagerank_iterate(rho: number[][], g: number[][][]): number[][] {
+    return rho.map((_, col:number) =>
+      reduce_frac(
+        rho.reduce((acc:number[], el: number[], row:number) =>
+          add_frac(acc, [ el[0]*g[row][col][0], el[1]*g[row][col][1] ]),
+          [0,0]
+        )
+      )
+    )
 }
