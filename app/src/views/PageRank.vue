@@ -6,7 +6,7 @@
       Consider this graph of the internet. Each node represents a web page, with each arrow representing a link from one webpage to another.<br/>
       <GraphDiagram :graph="adj_matrix"/>
 
-      <AppButton @click.native="" >Randomize</AppButton>
+      <AppButton @click.native="make_random_graph" >Randomize</AppButton>
       <p></p>
       We wish to find an 'importance' score <Math>$\rho(i)$</Math> for each page <Math>$P_i$</Math> which satisfies the following:
       <p></p>
@@ -16,7 +16,6 @@
       <p></p>
       Where <Math>$\#(P_j)$</Math> is the number of outgoing links from <Math>$P_j$</Math>.
       <p></p>
-      <DynamicMath :data="'$OI$'"/>
       We can construct the corresponding Google matrix:
       <p></p>
       <DynamicMath :data="`$$G_1 = \\begin{bmatrix} ${G1_matrix_string} \\end{bmatrix}$$`"/>
@@ -33,10 +32,15 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import GraphDiagram from '@/components/PageRank/GraphDiagram.vue'
+import { random_graph } from '@/algorithms/pagerank.ts'
 
 @Component({ components: { GraphDiagram } })
 export default class PageRank extends Vue {
   adj_matrix: number[][] = [[0,0,0,1,1],[1,1,0,0,0],[0,1,0,0,0],[0,0,0,0,0],[0,1,0,0,1]]
+
+  make_random_graph() {
+    this.adj_matrix = random_graph(Math.floor(Math.random()*(9-6)) + 6)
+  }
 
   // last array has 2 elements; top and bottom of a fraction
   get G1_matrix(): number[][][] {

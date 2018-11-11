@@ -71,7 +71,7 @@ export default class GraphDiagram extends Vue {
   SCALING_FACTOR: number = 1/this.graph.length
   FONT_SIZE: string = `${7 * this.SCALING_FACTOR}em`
   SMALL_RADIUS: number = 150 * this.SCALING_FACTOR
-  TEXT_OFFSET: number = this.SMALL_RADIUS*0.2
+  TEXT_OFFSET: number = this.SMALL_RADIUS*0.25
 
   MARKER_HEIGHT: number = 6
 
