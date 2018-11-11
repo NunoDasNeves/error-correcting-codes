@@ -3,7 +3,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import Encoder from './views/ConvolutionalEncoder.vue';
 import Decoder from './views/ViterbiDecoder.vue';
-import ReedSolomon from './views/ReedSolomon.vue';
+import PageRank from './views/PageRank.vue';
 import Test from './views/Test.vue';
 
 Vue.use(Router);
@@ -18,9 +18,9 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/reed-solomon',
-      name: 'reed-solomon',
-      component: ReedSolomon,
+      path: '/pagerank',
+      name: 'pagerank',
+      component: PageRank,
     },
     {
       path: '/encoder',
