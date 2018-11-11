@@ -32,7 +32,7 @@
       We can now iterate to approach a stationary distribution <Math>$\boldsymbol{\rho}$</Math> using the update:
       <Math>$$ (\boldsymbol{\rho}^{(t+1)})^{T} = (\boldsymbol{\rho}^{(t)})^{T}G $$</Math>
       <p></p>
-      Initialising with <Math>$\rho^{(0)}_i = \frac{1}{N}$</Math> we can approach the solution (Note that we have to stop using fractions at this point as the numbers become insane):
+      Initialising with <Math>$\rho^{(0)}_i = \frac{1}{N}$</Math> we can approach the solution. Note that we have to stop using fractions at this point as the numbers become insane:
       <DynamicMath :data="iterate_string"/>
       <AppButton @click.native="do_iteration">Next</AppButton><br/>
 
