@@ -10,12 +10,13 @@
 
     watch: {
       data () {
-        console.log("data changed!")
+        // clumsily remove dom elements that mathjax replaced
         while(this.$refs.mathJaxElWrapper.childNodes.length) {
           this.$refs.mathJaxElWrapper.removeChild(this.$refs.mathJaxElWrapper.lastChild)
         }
+        // add dom element with new data
         this.$refs.mathJaxElWrapper.innerHTML = `<span>${ this.data }</span>`
-
+        // re-typeset
         this.renderMathJax()
       }
     },
