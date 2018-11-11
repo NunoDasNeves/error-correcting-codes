@@ -1,5 +1,7 @@
 <template>
-  <span ref="mathJaxEl"><slot></slot></span>
+  <span>
+    <span ref="mathJaxEl"><slot></slot></span>
+  </span>
 </template>
 
 <script type="text/javascript">

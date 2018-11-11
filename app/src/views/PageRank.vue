@@ -24,21 +24,29 @@
       <DynamicMath :data="g2_matrix_string"/>
 
       <p></p>
-      Selecting <Math>$\alpha = \frac{85}{100}$</Math>. The final matrix <Math>$G$</Math> will be:
+      Selecting <Math>$\alpha = \frac{85}{100}$</Math>. $The final matrix <Math>$G$</Math> will be:
       <p></p>
       <DynamicMath :data="g_matrix_string"/>
 
       <p></p>
-      We can now iterate to approach a stationary distribution <Math>$\boldsymbol{\rho}$</Math> using the update:
+      We can now iterate to approach a stationary distribution <Math>$\boldsymbol{\rho}$</Math> using the update rule:
       <Math>$$ (\boldsymbol{\rho}^{(t+1)})^{T} = (\boldsymbol{\rho}^{(t)})^{T}G $$</Math>
       <p></p>
-      Initialising with <Math>$\rho^{(0)}_i = \frac{1}{N}$</Math> we can approach the solution. Note that we have to stop using fractions at this point as the numbers become insane:
-      <DynamicMath :data="iterate_string"/>
-      <AppButton @click.native="do_iteration">Next</AppButton><br/>
-
-      <AppButton @click.native="" :type="'warning'">Back</AppButton>
-
-      <AppButton @click.native="" :type="'green'">Finish</AppButton>
+      Initialising each <Math>$\rho^{(0)}_i = \frac{1}{N}$</Math>, we have:
+      <!-- fixed height hack to stop jumpy update -->
+      <div :style="`min-height:${33*adj_matrix.length}px;`">
+        <DynamicMath :data="iterate_string"/>
+      </div>
+      <p></p>
+      <AppButton @click.native="do_iteration" :disabled="t >= 100">1 Iteration ></AppButton>
+      <AppButton @click.native="do_iteration_10" :disabled="t >= 100">10 Iterations >></AppButton>
+      <AppButton @click.native="init_iteration" :type="'warning'">Reset</AppButton>
+      <p></p>
+      After {{ t + 1 }} iterations, <DynamicMath :data="iteration_norm_string"/>
+      <p></p>
+      We now rank the webpages from most to least important:
+      <p></p>
+      <DynamicMath :data="ranked_pages_string"/>
 
     </section>
   </div>
@@ -56,12 +64,20 @@ export default class PageRank extends Vue {
   g2_matrix_string: string = ''
   g_matrix_string: string = ''
   iterate_string: string = ''
+  iteration_norm_string: string = ''
+  ranked_pages_string: string = ''
 
   g: number[][][] = []
-  iteration_0: number[][] = []
-  iteration_t: number[][] = []
-  iteration_next: number[][] = []
+  it_0: number[][] = []
+  it_t: number[][] = []
+  it_next: number[][] = []
   t: number = 0
+
+  get_ranked_pages(): number[] {
+    const pages: any[] = this.it_next.map( (curr:number[], page:number)=>({ page, val:curr[0]/curr[1] }) )
+    pages.sort((a:any, b:any) => b.val - a.val)
+    return pages.map((curr:any) => curr.page)
+  }
 
   make_random_graph() {
     this.adj_matrix = random_graph(Math.floor(Math.random()*(9-6)) + 6)
@@ -77,19 +93,37 @@ export default class PageRank extends Vue {
   // (and update the string)
   init_iteration() {
     this.t = -1
-    this.iteration_0 = new Array<number[]>(this.g.length).fill([]).map((a:number[]) => [1,this.g.length])
-    this.iteration_next = this.iteration_0
+    this.it_0 = new Array<number[]>(this.g.length).fill([]).map((a:number[]) => [1,this.g.length])
+    this.it_next = this.it_0
     this.do_iteration()
   }
 
   // (and update the string)
   do_iteration() {
     this.t++
-    this.iteration_t = this.iteration_next
-    this.iteration_next = pagerank_iterate(this.iteration_t, this.g)
-    const iter_t: string = `\\begin{bmatrix} ${this.get_matrix_frac_string(this.iteration_t.map((el:number[]) => [el]))} \\end{bmatrix}`
-    const iter_next: string = `\\begin{bmatrix} ${this.get_matrix_frac_string(this.iteration_next.map((el:number[]) => [el]))} \\end{bmatrix}`
-    this.iterate_string = `$$ ${iter_next}^{(${this.t + 1})} = ${iter_t}^{(${this.t})}G $$`
+    this.it_t = this.it_next
+    this.it_next = pagerank_iterate(this.it_t, this.g)
+    const iter_t: string = `\\begin{bmatrix} ${this.get_matrix_frac_string(this.it_t.map((el:number[]) => [el]))} \\end{bmatrix}`
+    const iter_next: string = `\\begin{bmatrix} ${this.get_matrix_frac_string(this.it_next.map((el:number[]) => [el]))} \\end{bmatrix}`
+    this.iterate_string = `$$ (\\boldsymbol{\\rho^{(${this.t + 1})}})^{T} = \\left(${iter_next}^{(${this.t + 1})}\\right)^{T} = \\left(${iter_t}^{(${this.t})}\\right)^{T}G = (\\boldsymbol{\\rho}^{(${this.t})})^{T}G $$`
+    this.iteration_norm_string = this.get_iteration_norm_string()
+    this.ranked_pages_string = `$$ ${this.get_ranked_pages()} $$`
+  }
+
+  do_iteration_10() {
+    // do 9 then call do_iteration once
+    for(let i = 0; i < 9; ++i) {
+      this.t++
+      this.it_t = this.it_next
+      this.it_next = pagerank_iterate(this.it_t, this.g)
+    }
+    this.do_iteration()
+  }
+
+  get_iteration_norm_string(): string {
+    const diff: number[] = this.it_next.map((next:number[], i:number) => next[0]/next[1] - this.it_t[i][0]/this.it_t[i][1])
+    const norm: number = Math.sqrt(diff.map((a:number)=>a*a).reduce((acc:number, curr:number) => acc+curr, 0))
+    return `$\\left\\Vert\\boldsymbol{\\rho}^{(${this.t + 1})} - \\boldsymbol{\\rho}^{(${this.t})}\\right\\Vert_{2} \\approx ${norm}$`
   }
 
   get_matrix_frac_string(mat: number[][][]): string {
