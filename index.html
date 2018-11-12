@@ -1,3 +1,39 @@
-<html>
-    test
-</html>
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible
+        content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><script
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML"></script><title>Interactive
+        Algorithms</title><link href=/dist/css/app.688b6b75.css rel=preload as=style><link
+    href=/dist/js/app.0d970bc3.js rel=preload as=script><link href=/dist/js/chunk-vendors.6afc43f2.js
+    rel=preload as=script><link href=/dist/css/app.688b6b75.css rel=stylesheet></head><body><noscript><strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><script>document.addEventListener('DOMContentLoaded', () => {
+
+      const links = [
+        'https://fonts.googleapis.com/css?family=Open+Sans',
+        'https://fonts.googleapis.com/icon?family=Material+Icons'
+      ]
+      .map(href => {
+        const link = document.createElement('link')
+        link.href = href
+        link.setAttribute('rel', 'stylesheet')
+        return link
+      }).map(el => {
+        document.head.appendChild(el)
+      })
+
+      window.MathJax.Hub.Config({
+            extensions: ["tex2jax.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+              inlineMath: [['$', '$'], ['(', ')']],
+              displayMath: [['$$', '$$'], ['[', ']']],
+              processEscapes: true,
+              processEnvironments: true
+            },
+            // Center justify equations in code and markdown cells. Elsewhere
+            // we use CSS to left justify single line equations in code cells.
+            displayAlign: 'center',
+            'HTML-CSS': {
+              fonts: ['TeX'],
+              styles: { '.MathJax_Display': { margin: 0 } },
+              linebreaks: { automatic: true }
+            }
+          })
+    })</script><div id=app></div><script src=/dist/js/chunk-vendors.6afc43f2.js></script><script src=/dist/js/app.0d970bc3.js></script></body></html>
