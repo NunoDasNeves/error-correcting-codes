@@ -2,9 +2,9 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
-      <router-link to="/encoder">Convolutional Encoder</router-link> |
-      <router-link to="/decoder">Viterbi Decoder</router-link> |
-      <router-link to="/pagerank">PageRank</router-link>
+      <router-link to="/encoder/">Convolutional Encoder</router-link> |
+      <router-link to="/decoder/">Viterbi Decoder</router-link> |
+      <router-link to="/pagerank/">PageRank</router-link>
     </div>
     <router-view/>
   </div>
