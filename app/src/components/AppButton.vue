@@ -72,7 +72,7 @@ button:disabled {
     border: none;
 }
 
-.warning-button:hover {
+.green-button:hover {
     box-shadow: 0px 0px 0px 1px var(--color-green);
 }
 

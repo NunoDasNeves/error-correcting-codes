@@ -60,6 +60,7 @@ import { random_graph, get_G1_matrix, get_G2_matrix, get_G_matrix, pagerank_iter
 @Component({ components: { GraphDiagram } })
 export default class PageRank extends Vue {
   adj_matrix: number[][] = []
+
   g1_matrix_string: string = ''
   g2_matrix_string: string = ''
   g_matrix_string: string = ''
@@ -80,7 +81,8 @@ export default class PageRank extends Vue {
   }
 
   make_random_graph() {
-    this.adj_matrix = random_graph(Math.floor(Math.random()*(9-6)) + 6)
+    const N: number = Math.floor(Math.random()*(9-6)) + 6
+    this.adj_matrix = random_graph(N)
     const g1: number[][][] = get_G1_matrix(this.adj_matrix)
     this.g1_matrix_string = `$$G_1 = \\begin{bmatrix} ${this.get_matrix_frac_string(g1)} \\end{bmatrix}$$`
     const g2: number[][][] = get_G2_matrix(g1)
