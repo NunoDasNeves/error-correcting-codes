@@ -23,7 +23,7 @@ export default new Router({
       component: PageRank,
     },
     {
-      path: '/encoder',
+      path: '/encoder/',
       name: 'encoder',
       component: Encoder,
     },
