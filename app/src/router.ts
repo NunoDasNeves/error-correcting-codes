@@ -18,7 +18,7 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/pagerank',
+      path: '/pagerank/',
       name: 'pagerank',
       component: PageRank,
     },
@@ -28,17 +28,12 @@ export default new Router({
       component: Encoder,
     },
     {
-      path: '/decoder',
+      path: '/decoder/',
       name: 'decoder',
       component: Decoder,
       props: ({ params: { passed_params } }) => ({
         passed_params
       }),
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: Test,
-    },
+    }
   ],
 });
