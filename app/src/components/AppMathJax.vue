@@ -1,28 +1,19 @@
 <template>
-  <span>
-    <span ref="mathJaxEl"><slot></slot></span>
+  <span ref="mathJaxElWrapper">
+    <span><slot></slot></span>
   </span>
 </template>
 
 <script type="text/javascript">
   export default {
-    /*props:['data'],*/
-
-    /*watch: {
-      data () {
-        this.renderMathJax()
-      }
-    },*/
 
     methods: {
       renderMathJax () {
-        if (window.MathJax) {
-          window.MathJax.Hub.Queue([
-            'Typeset',
-            window.MathJax.Hub,
-            this.$refs.mathJaxEl
-          ])
-        }
+        window.MathJax.Hub.Queue([
+          'Typeset',
+          window.MathJax.Hub,
+          this.$refs.mathJaxElWrapper.firstChild
+        ])
       }
     },
     mounted() {
