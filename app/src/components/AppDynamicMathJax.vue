@@ -46,7 +46,7 @@
         }
       }
     },
-    mounted() {
+    mounted () {
       this.renderMathJax()
     }
   }
