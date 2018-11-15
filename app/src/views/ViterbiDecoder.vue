@@ -4,6 +4,10 @@
     <section>
 
       <form v-if="!got_params && !decoder_started">
+
+        The Viterbi algorithm is an efficient way to accurately decode the message at the receiver in the presence of bit errors.
+
+        <p></p>
         Type a (short) input string:<br/>
         <AppInput v-model="input_string" :valid="input_string.length <= MAX_INPUT_CHARS" style="width:40px;"/><br/>
         <div v-if="input_string.length > MAX_INPUT_CHARS">
@@ -160,6 +164,7 @@ export default class ViterbiDecoder extends Vue {
   }
 
   encode_string() {
+    if (this.input_string.length === 0 || this.input_string.length > this.MAX_INPUT_CHARS) return
     const encoder_input: number[] = stringToBinaryArray(this.input_string)
     const encoder: Encoder = new Encoder(this.decoder_params.n, this.decoder_params.K, this.decoder_params.gen, encoder_input)
     this.decoder_params.input = encoder.encodeAndFlatten()

@@ -8,6 +8,7 @@ import AppInput from '@/components/AppInput.vue';
 import AppButton from '@/components/AppButton.vue';
 import AppSpoiler from '@/components/AppSpoiler.vue';
 import AppSvg from '@/components/AppSvg.vue';
+import AppHorizLine from '@/components/AppHorizLine.vue';
 
 Vue.component('Math', Math)
 Vue.component('DynamicMath', DynamicMath)
@@ -15,6 +16,7 @@ Vue.component('AppInput', AppInput)
 Vue.component('AppButton', AppButton)
 Vue.component('AppSpoiler', AppSpoiler)
 Vue.component('AppSvg', AppSvg)
+Vue.component('HorizLine', AppHorizLine)
 
 Vue.config.productionTip = false;
 
