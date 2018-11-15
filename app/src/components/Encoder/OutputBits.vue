@@ -1,6 +1,6 @@
 <template>
   <div class="binary-container">
-    <div v-for="(s, i) in symbols" :class="`symbol-item binary-item-border-left ${i == symbols.length-1 ? 'symbol-item-output' : ''}`">
+    <div v-for="(s, i) in symbols" :class="`symbol-item binary-item-border-left ${highlight && i == symbols.length-1 ? 'symbol-item-output' : ''}`">
       <span v-for="b in s" class="bit-item">
         {{ b }}
       </span>
@@ -15,6 +15,8 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 export default class InputBits extends Vue {
   @Prop(Array)
   symbols!: number[][]
+  @Prop({ type: Boolean, default: false})
+  highlight!: boolean
 }
 </script>
 

@@ -141,6 +141,7 @@ li {
 a {
   color:var(--color-theme);
   text-decoration: none;
+  cursor:pointer;
 }
 
 a:hover {
@@ -152,6 +153,10 @@ a:hover {
   min-height: calc(100vh - 85px);
   width: 1000px;
   text-align: center;
+}
+
+.bit-text {
+  font-family:var(--font-monospace);
 }
 
 input, textarea {

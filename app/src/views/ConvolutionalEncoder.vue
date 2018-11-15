@@ -16,7 +16,7 @@
 
         <div v-if="input_string.length > 0 && input_string.length <= MAX_INPUT_CHARS">
           Input binary:<br>
-          <InputBits :bits='input' :index="-50" :K="K"/>
+          <InputBits :bits='input' :index="-50" :K="0"/>
         </div>
 
         <p></p>
@@ -97,7 +97,7 @@
         All output symbols:
         <OutputBits :symbols='encoder.outputs'/>
         <p v-if="encoder.finished">
-          Now the Viterbi Algorithm can be used to decode the message.
+          To see how the message can be decoded in the presence of errors, click below.
         </p>
         <p v-else></p> <!-- spacing hack -->
         <AppButton @click.native="decode" :disabled="!encoder.finished" :type="'green'">Decode</AppButton>
@@ -187,9 +187,6 @@ export default class ConvolutionalEncoder extends Vue {
 }
 .dot-list > li {
   list-style-type: disc;
-}
-.bit-text {
-  font-family:var(--font-monospace);
 }
 .bit-text-red {
   font-family:var(--font-monospace);
