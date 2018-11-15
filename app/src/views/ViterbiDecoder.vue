@@ -66,17 +66,20 @@
           :callback="toggle_error"
           :flip="true"
           />
-          <AppButton @click.native="() => errors = {}">Clear</AppButton>
-          <AppButton @click.native="randomize_errors">Random</AppButton>
+          <AppButton @click.native="() => errors = {}">Clear Errors</AppButton>
+          <AppButton @click.native="randomize_errors">Random Errors</AppButton>
           <br/>
         <AppButton @click.native="start_decoder" :type="'green'">Start Decoding</AppButton>
       </form>
 
       <div v-else>
         <AppButton :type="'warning'" @click.native="stop_decoder">Back</AppButton>
-        <AppButton :type="'warning'" @click.native="reset_decoder">Reset</AppButton>
         <br/>
-        Input symbols:<br/>
+
+        <TrellisDiagramInfo/>
+        <p></p>
+
+        Symbols:<br/>
         <InputErrorBits
           :bits="decoder_params.input"
           :n="decoder_params.n"
@@ -86,19 +89,16 @@
           :curr_symbol="decoder.i/decoder.n"
           />
 
-        <AppSpoiler :title="'Trellis Diagram'"><TrellisDiagramInfo/></AppSpoiler>
-
         <TrellisDiagram :decoder="decoder"/>
 
+        <AppButton :disabled="decoder.i == 0 && decoder.curr_state == 0" @click.native="reset_decoder" :type="'warning'"><< Reset</AppButton>
         <AppButton :disabled="decoder.i == 0 && decoder.curr_state == 0" @click.native="decoder.prev_state">< Previous State</AppButton>
         <AppButton :disabled="decoder.finished" @click.native="decoder.next_state">Next State ></AppButton>
         <AppButton :disabled="decoder.finished" @click.native="decoder.next_symbol">Next Symbol >></AppButton>
+        <AppButton :disabled="decoder.finished" @click.native="decoder.decode" :type="'green'">Decode >>></AppButton>
 
         <p></p>
-
-        The output of the decoder is the most likely sequence of bits to have caused the sequence of symbols in the presence of minimal errors.<br/>
-        This sequence is traced back through the table, from the minimal hamming distance in the last column.<br/>
-        <AppButton @click.native="decoder.decode" :type="'green'">Decode</AppButton>
+        After all entries are filled, the most likely sequence is traced back through the table, from the minimal hamming distance in the last column.<br/>
         <p></p>
         <div v-if="decoded_strings.length == 1">
           The most likely input string is:<br/>
