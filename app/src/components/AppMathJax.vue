@@ -8,7 +8,16 @@
   export default {
 
     methods: {
-      renderMathJax () {
+      async waitForMathJax() {
+        let i = 0
+        while (!window.MathJax) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          i++
+          if (i > 50) throw Error("MathJax not loaded")
+        }
+      },
+      async renderMathJax () {
+        await this.waitForMathJax()
         window.MathJax.Hub.Queue([
           'Typeset',
           window.MathJax.Hub,
