@@ -6,7 +6,7 @@
       Consider this graph of the internet. Each node represents a web page, with each arrow representing a link from one webpage to another.<br/>
       <GraphDiagram :graph="adj_matrix"/>
 
-      <AppButton @click.native="make_random_graph" >Randomize</AppButton>
+      <AppButton @click.native="make_random_graph" :disabled="graph_timeout">Randomize</AppButton>&nbsp;&nbsp;<span v-if="graph_timeout">Wait a moment...</span>
       <p></p>
       We wish to find an 'importance' score <Math>$\rho(P_i)$</Math> for each page <Math>$P_i$</Math> which satisfies the following:
       <p></p>
@@ -80,7 +80,9 @@ export default class PageRank extends Vue {
     return pages.map((curr:any) => curr.page)
   }
 
-  make_random_graph() {
+  graph_timeout: boolean = false
+
+  async make_random_graph() {
     const N: number = Math.floor(Math.random()*(9-6)) + 6
     this.adj_matrix = random_graph(N)
     const g1: number[][][] = get_G1_matrix(this.adj_matrix)
@@ -90,6 +92,10 @@ export default class PageRank extends Vue {
     this.g = get_G_matrix(g2, [85,100])
     this.g_matrix_string = `$$G = \\begin{bmatrix} ${this.get_matrix_frac_string(this.g)} \\end{bmatrix}$$`
     this.init_iteration()
+    // debounce
+    this.graph_timeout = true
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    this.graph_timeout = false
   }
 
   // (and update the string)
