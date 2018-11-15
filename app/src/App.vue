@@ -1,16 +1,18 @@
 <template>
   <div id="app">
     <div id="nav">
-      <ul>
-        <li><router-link to="/">Home</router-link></li>
-        <li>
-          <ul>
-            <li><router-link to="/encoder/">Convolutional Encoder</router-link></li>
-            <li><router-link to="/decoder/">Viterbi Decoder</router-link></li>
-            <li><router-link to="/pagerank/">PageRank</router-link></li>
-          </ul>
-        </li>
-      </ul>
+      <div id="header">
+        <h3>Interactive Algorithms</h3>
+        <span style="font-size:12px;">by Nuno Das Neves</span>
+      </div>
+      <div style="padding-bottom:8px;border-bottom:solid var(--color-dark-gray) 1px;width:170px;">
+        <router-link to="/">Info</router-link>
+      </div>
+      <div style="padding-top:8px;">
+        <router-link to="/encoder/">Convolutional Codes</router-link><br>
+        <router-link to="/decoder/">Viterbi Algorithm</router-link><br>
+        <router-link to="/pagerank/">PageRank</router-link>
+      </div>
     </div>
     <div id="content">
       <router-view/>
@@ -25,6 +27,7 @@
   --color-theme-light: #a7cdff;
   --color-white: #fefefe;
   --color-black: #111;
+  --color-dark-gray: #858585;
   --color-gray: #d5d5d5;
   --color-light-gray: #eaeaea;
   --color-very-light-gray: #f9f9f9;
@@ -67,17 +70,30 @@
 }
 
 #app {
-  background-color: var(--color-very-light-gray);
   display:flex;
+  min-height:100%;
 }
 
-#nav, #content {
+#content {
+  padding:20px;
   height:100%;
-  padding:10px;
+  margin:0 auto;
 }
 
 #nav {
-  width:260px;
+  min-height:100%;
+  padding:20px;
+  width:220px;
+  background-color: var(--color-light-gray);
+}
+
+#header {
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+#nav h3 {
+  margin:0;
 }
 
 #nav li {
@@ -85,6 +101,7 @@
 }
 
 html, body {
+  background-color: var(--color-very-light-gray);
   margin: 0;
   padding: 0;
   letter-spacing: 0;
@@ -97,10 +114,14 @@ html, body {
   font-size: 16px;
   line-height: 1.9;
   font-family: var(--font-default);
+  height:100%;
 }
 
 section {
-    padding: 20px;
+  margin-top:12px;
+  padding: 10px 25px;
+  background: var(--color-white);
+  text-align: left;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -117,12 +138,25 @@ li {
   list-style-type: none;
 }
 
+a {
+  color:var(--color-theme);
+  text-decoration: none;
+  cursor:pointer;
+}
+
+a:hover {
+  color:var(--color-theme-light);
+}
+
 .main-content {
   /* arbitrary */
-  min-height: calc(100vh - 85px);;
-  max-width: 800px;
-  margin: auto;
-  margin-bottom: 20px;
+  min-height: calc(100vh - 85px);
+  width: 1000px;
+  text-align: center;
+}
+
+.bit-text {
+  font-family:var(--font-monospace);
 }
 
 input, textarea {

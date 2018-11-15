@@ -1,25 +1,39 @@
 <template>
   <div class="main-content">
-    <h3>Convolutional Encoder</h3>
+    <h3 style="font-family:var(--font-monospace);">Convolutional Codes</h3>
     <section>
 
-      <form v-if="!encoder_started">
-        Type a (short) input string:<br/>
-        <AppInput v-model="input_string" :valid="input_string.length <= MAX_INPUT_CHARS" style="width:40px;"/><br/>
-        <div v-if="input_string.length > MAX_INPUT_CHARS">
-          Please limit the input to {{ MAX_INPUT_CHARS }} characters
+      <div v-if="!encoder_started">
+        Convolutional Codes add redundant information to a stream of bits in order to increase reliability in noisy communication channels.
+        <p></p>
+        The <router-link :to="{ name: 'decoder', params: {} }">Viterbi Algorithm</router-link> can be used to restore the original bitstream up to a certain error rate.
+        <p></p>
+        Type a short string to encode:
+        <p></p>
+        <AppInput v-model="input_string" :valid="input_string.length <= MAX_INPUT_CHARS" style="width:40px;"/>
+        &nbsp;&nbsp;<span v-if="input_string.length > MAX_INPUT_CHARS">Please limit the input to {{ MAX_INPUT_CHARS }} characters</span>
+        <p></p>
+
+        <div v-if="input_string.length > 0 && input_string.length <= MAX_INPUT_CHARS">
+          Input binary:<br>
+          <InputBits :bits='input' :index="-50" :K="0"/>
         </div>
-        <AppButton @click.native="start_encoder" :type="'green'">Start Encoding</AppButton>
-      </form>
+
+        <p></p>
+        <AppButton @click.native="start_encoder" :disabled="!input_string.length" :type="'green'">Start Encoding</AppButton>
+      </div>
 
       <div v-else>
         <AppButton :type="'warning'" @click.native="stop_encoder">Back</AppButton>
-        <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
         <br/>
 
-        generator polynomials: {{ encoder_params.gen }}<br/>
-
-        <AppSpoiler :title="'What are generator polynomials?'">
+        A convolutional encoder has <Math>$K$</Math> single-bit registers. <Math>$K - 1$</Math> of these are the <span class='bit-text-blue'>state bits</span> of the encoder.<br>
+        Each <span class='bit-text-red'>input bit</span> enters the encoder via the leftmost register. At each step of encoding, the registers are shifted right.<br>
+        <p></p>
+        For each input bit, an <Math>$n$</Math>-bit <span class='bit-text-green'>output symbol</span> is produced by the encoder.<br>
+        Each output bit is obtained by <Math>$n$</Math> modulo-2 adders (equivalent to <span class="bit-text">XOR</span>), which add a subset of the encoder registers.<br>
+        <Math>$n$</Math> generator polynomials define which registers are added to produce each output bit.
+        <AppSpoiler :title="'More on generator polynomials'">
           <Math>
             Generator polynomials are of degree $K-1$ and take the form:
             $G^{i}(x) = g_0^{i} + g_1^{i}x + ... + g_{K-1}^{i}x^{K-1}$ for $1 \leq i \leq n$, where each coefficient $g_k^{i} \in \{0, 1\}$
@@ -53,32 +67,39 @@
             <ul class="dot-list">
               <li>Non-existent coefficents can be simply treated as $0$</li>
               <li>Summation $\bmod{2}$ is equivalent to XOR</li>
-              <li>No matter the length of $P(x)$, $b_{j}^{i}$ is composed of at most $K$ non-zero terms</li>
+              <li>No matter the length of $P(x)$, $b_{j}^{i}$ is the sum of at most $K$ non-zero terms</li>
             </ul>
             This operation is what the convolutional encoder implements.
           </Math>
         </AppSpoiler>
 
-        Input binary:<br/>
-        <InputBits :bits='encoder.input' :index="encoder.i" :K="encoder_params.K"/>
+        <HorizLine />
 
-        <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next Bit ></AppButton>
-        <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
-
-        <div style="display:flex;">
-          <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="encoder_params.gen"/>
-          <p>
-            <Math>
-              <span style='background-color:var(--color-bit-state);font-family:var(--font-monospace);'>&nbsp;</span> bits denote the current state of the encoder. There are $2^{K-1}$ states.<br/>
-              <span style='background-color:var(--color-bit-output);font-family:var(--font-monospace);'>&nbsp;</span> bits denote the current output symbol, computed based on the state bits and output bit.<br/>
-              <span style='background-color:var(--color-bit-input);font-family:var(--font-monospace);'>&nbsp;</span> is the input bit. It determines the next state the encoder will be in.<br/>
-            </Math>
-          </p>
+        <h3>Sample Encoder</h3>
+        <div class="params">
+          <Math>
+          $K = 3$<br>
+          $n = 3$<br>
+          </Math>
+          generator polynomials: <span v-html="show_gen"/><br/>
         </div>
 
-        Output symbols:
-        <OutputBits :symbols='encoder.outputs'/>
 
+        Input binary:<br/>
+        <InputBits :bits='encoder.input' :index="encoder.i" :K="K"/>
+
+        <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="gen" :gen_colors="GEN_COLORS"/>
+
+        <AppButton :type="'warning'" @click.native="reset_encoder"><< Reset</AppButton>
+        <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next Bit ></AppButton>
+        <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
+        <p></p>
+        All output symbols:
+        <OutputBits :symbols='encoder.outputs'/>
+        <p v-if="encoder.finished">
+          To see how the message can be decoded in the presence of errors, click below.
+        </p>
+        <p v-else></p> <!-- spacing hack -->
         <AppButton @click.native="decode" :disabled="!encoder.finished" :type="'green'">Decode</AppButton>
 
       </div>
@@ -87,7 +108,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import InputBits from '@/components/Encoder/InputBits.vue'
 import OutputBits from '@/components/Encoder/OutputBits.vue'
 import EncoderDiagram from '@/components/Encoder/Diagram.vue'
@@ -96,33 +117,41 @@ import { Encoder, stringToBinaryArray } from '@/algorithms/viterbi_encoder_decod
 
 @Component({ components: { InputBits, EncoderDiagram, OutputBits } })
 export default class ConvolutionalEncoder extends Vue {
-  encoder_params: EncoderParams = {
-                    input: [],
-                    K: 3,
-                    n: 3,
-                    gen: [[1,1,1], [0,1,1], [1,0,1]]
-                    }
+
   MAX_INPUT_CHARS: number = 4
+  GEN_COLORS:string[] = ['red', 'blue', 'green', 'orange', 'purple', 'black']
 
   get encoder(): Encoder {
     return EncoderModule.encoder
-  }
-
-  get input_string(): string {
-    return EncoderModule.input_string
-  }
-  set input_string(s:string) {
-    EncoderModule.set_input_string(s)
   }
 
   get encoder_started(): boolean {
     return EncoderModule.encoder_started
   }
 
+  get input_string(): string {
+    return EncoderModule.input_string
+  }
+
+  set input_string(s:string) {
+    EncoderModule.set_input_string(s)
+  }
+
+  get input(): number[] {
+    return stringToBinaryArray(this.input_string)
+  }
+
+  K: number = 3
+  n: number = 3
+  gen: number[][] = [[1,1,1], [0,1,1], [1,0,1]]
+
+  get show_gen(): string {
+    return this.gen.map((curr, i) => `(<span style="color:${this.GEN_COLORS[i]};">${curr}</span>)`).join(' , ')
+  }
+
   start_encoder() {
     if (this.input_string.length == 0 || this.input_string.length > this.MAX_INPUT_CHARS) return
-    this.encoder_params.input = stringToBinaryArray(this.input_string)
-    EncoderModule.start_encoder(this.encoder_params)
+    EncoderModule.start_encoder({input: this.input, K: this.K, n: this.n, gen: this.gen})
   }
   stop_encoder() {
     EncoderModule.stop_encoder()
@@ -136,7 +165,7 @@ export default class ConvolutionalEncoder extends Vue {
 
   decode() {
     const flattened: number[] = this.encoder.outputs.reduce((acc, curr) => acc.concat(curr), [])
-    const params: any = { ...this.encoder_params }
+    const params: any = {input: this.input, K: this.K, n: this.n, gen: this.gen}
     params.input = flattened
     this.$router.push({ name: 'decoder', params: { passed_params: params}})
   }
@@ -144,13 +173,33 @@ export default class ConvolutionalEncoder extends Vue {
 </script>
 
 <style scoped lang="less">
-section {
-  background: var(--color-white);
+
+.params {
+  border:var(--border);
+  border-radius:10px;
+  padding:10px 17px;
+  margin:15px 0px;
+  width: 50%;
 }
+
 .dot-list {
   margin-left: 20px;
 }
 .dot-list > li {
   list-style-type: disc;
+}
+.bit-text-red {
+  font-family:var(--font-monospace);
+  background-color:var(--color-bit-input);
+}
+
+.bit-text-green {
+  font-family:var(--font-monospace);
+  background-color:var(--color-bit-output);
+}
+
+.bit-text-blue {
+  font-family:var(--font-monospace);
+  background-color:var(--color-bit-state);
 }
 </style>

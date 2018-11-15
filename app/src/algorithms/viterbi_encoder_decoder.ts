@@ -1,3 +1,8 @@
+// hamming distance between two bit strings of the same length
+// this acts similarly to a likelihood function of observable symbol a being produced by actual symbol b in the presence of bit errors
+export function hamming(a: number[], b: number[]) {
+  return a.reduce((acc, a_i, i) => acc + (a_i ^ b[i]), 0) // add the xor of each bit
+}
 
 // convert a regular string to an array of bits for use with an Encoder
 export function stringToBinaryArray(s: string): number[] {
@@ -37,8 +42,8 @@ export function binaryArrayToString(bits: number[]): string {
 // use intuitive ordering, so [ 1, 0 ] -> 2
 export function arrayToNumber(bits: number[]): number {
   let num: number = 0
-  for (let i: number = bits.length-1; i >= 0; --i) {
-    num |= bits[i] << i
+  for (let i: number = 0; i < bits.length; ++i) {
+    num |= bits[bits.length - i - 1] << i
   }
   return num
 }
@@ -134,6 +139,10 @@ export class Encoder {
 
     if (this.i + 1 >= this.input.length) {
       this.finished = true
+      // dummy state on the end ... the state we would be in if the input continued
+      this.reg.pop()
+      this.reg.unshift(0)
+      this.states.push(Array.from(this.reg))
     }
 
     return out_symbol
@@ -226,12 +235,6 @@ export class Decoder {
     return new Decoder(2, 3, [[1,1,1], [1,0,1]], input)
   }
 
-  // hamming distance between two bit strings of the same length
-  // this acts similarly to a likelihood function of observable symbol a being produced by actual symbol b in the presence of bit errors
-  hamming(a: number[], b: number[]) {
-    return a.reduce((acc, a_i, i) => acc + (a_i ^ b[i]), 0) // add the xor of each bit
-  }
-
   get_prev(s: number): number[] {
     return this.graph[s].prev
   }
@@ -279,8 +282,8 @@ export class Decoder {
     // the leftmost bit is the one that was transitioned on to get to this state
     const bit: number = this.get_prev_bit(this.curr_state)
 
-    const hamming_1: number = this.table[this.i/this.n][prev[0]].hamming + this.hamming(out_bits, this.graph[prev[0]].output[bit])
-    const hamming_2: number = this.table[this.i/this.n][prev[1]].hamming + this.hamming(out_bits, this.graph[prev[1]].output[bit])
+    const hamming_1: number = this.table[this.i/this.n][prev[0]].hamming + hamming(out_bits, this.graph[prev[0]].output[bit])
+    const hamming_2: number = this.table[this.i/this.n][prev[1]].hamming + hamming(out_bits, this.graph[prev[1]].output[bit])
 
     // console.log(`state ${s} can come from ${prev_1}: ${this.graph[prev_1].output[bit]} or ${prev_2}: ${this.graph[prev_2].output[bit]}`)
 
@@ -296,6 +299,7 @@ export class Decoder {
 
     if (this.i + this.n >= this.input.length && this.curr_state + 1 >= this.N) {
       this.finished = true
+      this.get_path()
       return false
     }
 

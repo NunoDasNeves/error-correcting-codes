@@ -12,7 +12,7 @@
             <!-- horizontal line -->
             <polyline
               :points="horiz_line_points(g, i)"
-              :stroke="GEN_COLORS[i]"
+              :stroke="gen_colors[i]"
               stroke-width='2' fill='transparent'/>
 
             <!-- vertical lines -->
@@ -20,7 +20,7 @@
               v-for="(v, j) in g"
               v-if="v == 1"
               :points="vert_line_points(i, j)"
-              :stroke="GEN_COLORS[i]"
+              :stroke="gen_colors[i]"
               stroke-width='2' fill='transparent'/>
               />
 
@@ -108,6 +108,8 @@ export default class Diagram extends Vue {
   output!: number[]
   @Prop(Array)
   gen!: number[][]
+  @Prop(Array)
+  gen_colors!: string[]
 
   SCALING_FACTOR: number = 1/Math.max(this.gen.length, this.gen[0].length)
   MARGIN: number = 30
@@ -116,7 +118,6 @@ export default class Diagram extends Vue {
   SQUARE_WIDTH:number = 225 * this.SCALING_FACTOR
   XOR_RADIUS: number = 45 * this.SCALING_FACTOR
   TOP_OFFSET: number = this.SQUARE_WIDTH/2 // offset for lines
-  GEN_COLORS:string[] = ['red', 'blue', 'green', 'orange', 'purple', 'black']
 
   horiz_line_points(poly: number[], index: number): string {
     // space between vertical lines, used to determine where horizontal lines start

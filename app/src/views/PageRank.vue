@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <h3>PageRank Algorithm</h3>
+    <h3 style="font-family:var(--font-monospace);">PageRank</h3>
     <section>
 
       Consider this graph of the internet. Each node represents a web page, with each arrow representing a link from one webpage to another.<br/>

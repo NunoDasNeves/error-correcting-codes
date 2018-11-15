@@ -19,7 +19,9 @@ export default class InputBits extends Vue {
   K!: number
 
   get padded_bits(): number[] {
-      return [...(new Array<number>(this.K-1).fill(-1)), ...this.bits]
+    // TODO hack to make this more versatile
+    if (this.K <= 0) return this.bits
+    return [...(new Array<number>(this.K-1).fill(-1)), ...this.bits]
   }
 
   get_border_class(i: number): string {
