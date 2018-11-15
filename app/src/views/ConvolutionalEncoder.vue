@@ -95,7 +95,7 @@
         <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
         <p></p>
         All output symbols:
-        <OutputBits :symbols='encoder.outputs'/>
+        <OutputBits :symbols='encoder.outputs' :highlight="true"/>
         <p v-if="encoder.finished">
           To see how the message can be decoded in the presence of errors, click below.
         </p>
