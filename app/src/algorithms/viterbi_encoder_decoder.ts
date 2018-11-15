@@ -299,6 +299,7 @@ export class Decoder {
 
     if (this.i + this.n >= this.input.length && this.curr_state + 1 >= this.N) {
       this.finished = true
+      this.get_path()
       return false
     }
 
