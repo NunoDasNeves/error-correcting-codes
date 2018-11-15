@@ -22,28 +22,34 @@
     },
 
     methods: {
-      renderMathJax () {
-        if (window.MathJax) {
-          window.MathJax.Hub.Queue([
-            'Typeset',
-            window.MathJax.Hub,
-            this.$refs.mathJaxElWrapper.firstChild
-          ])
+      async waitForMathJax() {
+        let i = 0
+        while (!window.MathJax) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          i++
+          if (i > 50) throw Error("MathJax not loaded")
         }
+      },
+      async renderMathJax () {
+        await this.waitForMathJax()
+        window.MathJax.Hub.Queue([
+          'Typeset',
+          window.MathJax.Hub,
+          this.$refs.mathJaxElWrapper.firstChild
+        ])
       },
       // kind of a hack
       strip_dollars(s) {
         while(s.startsWith('$') && s.endsWith('$')) s = s.slice(1,-1)
         return s
       },
-      updateMathJax () {
-        if (window.MathJax) {
-          window.MathJax.Hub.Queue([
-            'Text',
-            window.MathJax.Hub.getAllJax(this.$refs.mathJaxElWrapper)[0],
-            this.strip_dollars(this.data)
-          ])
-        }
+      async updateMathJax () {
+        await this.waitForMathJax()
+        window.MathJax.Hub.Queue([
+          'Text',
+          window.MathJax.Hub.getAllJax(this.$refs.mathJaxElWrapper)[0],
+          this.strip_dollars(this.data)
+        ])
       }
     },
     mounted () {
