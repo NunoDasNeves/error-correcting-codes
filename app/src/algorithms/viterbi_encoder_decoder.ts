@@ -37,8 +37,8 @@ export function binaryArrayToString(bits: number[]): string {
 // use intuitive ordering, so [ 1, 0 ] -> 2
 export function arrayToNumber(bits: number[]): number {
   let num: number = 0
-  for (let i: number = bits.length-1; i >= 0; --i) {
-    num |= bits[i] << i
+  for (let i: number = 0; i < bits.length; ++i) {
+    num |= bits[bits.length - i - 1] << i
   }
   return num
 }
@@ -86,7 +86,6 @@ export class Encoder {
     this.finished = false
     this.reg = new Array<number>(this.K).fill(0)
     this.states = new Array<number[]>()
-    this.states.push(Array.from(this.reg))
     this.outputs = new Array<number[]>()
     this.next()
   }
@@ -135,6 +134,10 @@ export class Encoder {
 
     if (this.i + 1 >= this.input.length) {
       this.finished = true
+      // dummy state on the end ... the state we would be in if the input continued
+      this.reg.pop()
+      this.reg.unshift(0)
+      this.states.push(Array.from(this.reg))
     }
 
     return out_symbol
