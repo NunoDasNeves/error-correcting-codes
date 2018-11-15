@@ -28,7 +28,7 @@
         <br/>
 
         A convolutional encoder has <Math>$K$</Math> single-bit registers. <Math>$K - 1$</Math> of these are the <span class='bit-text-blue'>state bits</span> of the encoder.<br>
-        Each <span class='bit-text-red'>input bit</span> enters the encoder via the first register. At each step, the registers are shifted right.<br>
+        Each <span class='bit-text-red'>input bit</span> enters the encoder via the leftmost register. At each step of encoding, the registers are shifted right.<br>
         <p></p>
         For each input bit, an <Math>$n$</Math>-bit <span class='bit-text-green'>output symbol</span> is produced by the encoder.<br>
         Each output bit is obtained by <Math>$n$</Math> modulo-2 adders (equivalent to <span class="bit-text">XOR</span>), which add a subset of the encoder registers.<br>
@@ -81,21 +81,25 @@
           $K = 3$<br>
           $n = 3$<br>
           </Math>
-          generator polynomials: {{ gen }}<br/>
+          generator polynomials: <span v-html="show_gen"/><br/>
         </div>
 
 
         Input binary:<br/>
         <InputBits :bits='encoder.input' :index="encoder.i" :K="K"/>
 
-        <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="gen"/>
+        <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="gen" :gen_colors="GEN_COLORS"/>
+
         <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
         <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next Bit ></AppButton>
         <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
         <p></p>
         All output symbols:
         <OutputBits :symbols='encoder.outputs'/>
-
+        <p v-if="encoder.finished">
+          Now the Viterbi Algorithm can be used to decode the message.
+        </p>
+        <p v-else></p> <!-- spacing hack -->
         <AppButton @click.native="decode" :disabled="!encoder.finished" :type="'green'">Decode</AppButton>
 
       </div>
@@ -114,6 +118,17 @@ import { Encoder, stringToBinaryArray } from '@/algorithms/viterbi_encoder_decod
 @Component({ components: { InputBits, EncoderDiagram, OutputBits } })
 export default class ConvolutionalEncoder extends Vue {
 
+  MAX_INPUT_CHARS: number = 4
+  GEN_COLORS:string[] = ['red', 'blue', 'green', 'orange', 'purple', 'black']
+
+  get encoder(): Encoder {
+    return EncoderModule.encoder
+  }
+
+  get encoder_started(): boolean {
+    return EncoderModule.encoder_started
+  }
+
   get input_string(): string {
     return EncoderModule.input_string
   }
@@ -125,18 +140,13 @@ export default class ConvolutionalEncoder extends Vue {
   get input(): number[] {
     return stringToBinaryArray(this.input_string)
   }
+
   K: number = 3
   n: number = 3
   gen: number[][] = [[1,1,1], [0,1,1], [1,0,1]]
 
-  MAX_INPUT_CHARS: number = 4
-
-  get encoder(): Encoder {
-    return EncoderModule.encoder
-  }
-
-  get encoder_started(): boolean {
-    return EncoderModule.encoder_started
+  get show_gen(): string {
+    return this.gen.map((curr, i) => `(<span style="color:${this.GEN_COLORS[i]};">${curr}</span>)`).join(' , ')
   }
 
   start_encoder() {

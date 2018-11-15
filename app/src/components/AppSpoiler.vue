@@ -2,7 +2,7 @@
   <div>
     <div class="spoiler-bar">
       <span v-on:click="() => {toggle = !toggle}" class="spoiler-title">{{ title }}</span>
-      <!--i v-show="toggle" v-on:click="() => {toggle = false}" class="material-icons spoiler-close">close_circle</i-->
+      <i v-show="toggle" v-on:click="() => {toggle = false}" class="material-icons spoiler-close">close_circle</i>
     </div>
     <div v-show="toggle" class="spoiler-content">
       <slot></slot>
