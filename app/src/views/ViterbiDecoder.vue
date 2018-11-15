@@ -44,14 +44,16 @@
           The error correcting capability of a convolutional code is <Math>$\lfloor\frac{d - 1}{2}\rfloor$</Math>, where <Math>$d$</Math> is the 'free distance' of the code.
           <p></p>
           The free distance is just the minimal Hamming Distance between all pairs of distinct sequences of output symbols that can be produced by the encoder.</br>
-          For example, consider these pairs of possible output sequences:
+          For example, consider this pair of possible output sequences:
           <OutputBits :symbols='[[0,0,0],[0,0,0],[0,0,0]]' :highlight="false"/>
           <OutputBits :symbols='[[1,0,1],[1,1,0],[1,1,1]]' :highlight="false"/>
           The sequences start and end in the same encoder state <span class="bit-text">00</span>, and the Hamming Distance between them is 7.<br>
           <p></p>
           One way we can obtain <Math>$d$</Math> is by comparing all possible decoding paths to the all 0 path. We can illustrate this with a Trellis diagram showing all possible paths:
           <p></p>
-          <!--ErrorTrellis :table="error_trellis_table"/-->
+          <ErrorTrellis :encoder="error_trellis_encoder"/>
+          <AppButton @click.native="error_trellis_prev">< Prev</AppButton>
+          <AppButton @click.native="error_trellis_next">Next ></AppButton>
         </AppSpoiler>
 
         The encoder generates a binary stream, which we display here broken up into symbols of length <Math>$n$</Math>.<br>
@@ -126,7 +128,7 @@ import ErrorTrellis from '@/components/Decoder/ErrorTrellisDiagram.vue'
 import TrellisDiagram from '@/components/Decoder/Diagram.vue'
 import TrellisDiagramInfo from '@/components/Decoder/DiagramInfo.vue'
 import { DecoderParams, DecoderModule } from '@/store/decoder.ts'
-import { Encoder, Decoder, stringToBinaryArray, binaryArrayToString } from '@/algorithms/viterbi_encoder_decoder.ts'
+import { Encoder, Decoder, stringToBinaryArray, binaryArrayToString, numberToArray } from '@/algorithms/viterbi_encoder_decoder.ts'
 
 @Component({ components: { InputBits, OutputBits, InputErrorBits, TrellisDiagram, ErrorTrellis, TrellisDiagramInfo }})
 export default class ViterbiDecoder extends Vue {
@@ -161,6 +163,22 @@ export default class ViterbiDecoder extends Vue {
   get decoded_strings(): string[] {
     return this.decoder.likely_decodings.map(binaryArrayToString)
   }
+
+  error_trellis_input_length: number = 5
+  error_trellis_input_num: number = 0xffffe
+  get error_trellis_input(): number[] { return numberToArray(this.error_trellis_input_num, this.error_trellis_input_length) }
+  error_trellis_encoder: Encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
+  error_trellis_next() {
+    this.error_trellis_input_num--
+    this.error_trellis_encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
+    this.error_trellis_encoder.encodeAndFlatten()
+  }
+  error_trellis_prev() {
+    this.error_trellis_input_num++
+    this.error_trellis_encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
+    this.error_trellis_encoder.encodeAndFlatten()
+  }
+
 
   toggle_error(index: number) {
     this.errors[index] = !this.errors[index]
@@ -203,6 +221,8 @@ export default class ViterbiDecoder extends Vue {
       this.got_params = true
       DecoderModule.stop_decoder()
     }
+
+    this.error_trellis_encoder.encodeAndFlatten()
   }
 
   encode_string() {

@@ -86,6 +86,7 @@ export class Encoder {
     this.finished = false
     this.reg = new Array<number>(this.K).fill(0)
     this.states = new Array<number[]>()
+    this.states.push(Array.from(this.reg))
     this.outputs = new Array<number[]>()
     this.next()
   }
