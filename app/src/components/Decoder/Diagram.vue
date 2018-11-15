@@ -20,7 +20,7 @@
             </g>
           </g>
           <!-- the actual labels -->
-          <g v-for="(_, s) in states" :transform="`translate(0,${s*(SQUARE_WIDTH + TRELLIS_VERT_GAP)})`">
+          <g v-for="(s, i) in states" :transform="`translate(0,${i*(SQUARE_WIDTH + TRELLIS_VERT_GAP)})`">
             <rect
                 :width="STATE_LABEL_WIDTH" :height="SQUARE_WIDTH"
                 stroke='black' stroke-width='2'
@@ -30,7 +30,7 @@
               :style="`font-size:${FONT_SIZE};`"
               class="decoder-svg-text">
               <tspan text-anchor="middle">
-                {{ numberToArray(s).join('') }}
+                {{ s.join('') }}
               </tspan>
             </text>
           </g>
@@ -226,8 +226,8 @@ export default class TrellisDiagram extends Vue {
   }
 
   // array of numbered states for convenience
-  get states(): number[] {
-    return new Array<number>(this.decoder.N).fill(0)
+  get states(): number[][] {
+    return new Array<number>(this.decoder.N).fill(0).map((curr, i) => numberToArray(i, this.decoder.K - 1))
   }
 
   get symbols(): number[][] {
@@ -262,8 +262,6 @@ export default class TrellisDiagram extends Vue {
       return this.TRELLIS_LABEL_WIDTH*2.7
     }
   }
-
-  numberToArray(s: number) :number[] { return numberToArray(s, this.decoder.K - 1) }
 
   SCALING_FACTOR: number = 1/this.decoder.N
   MARGIN: number = 40
