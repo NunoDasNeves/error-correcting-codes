@@ -186,7 +186,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import { Decoder, numberToArray } from '@/algorithms/viterbi_encoder_decoder.ts'
+import { Decoder, numberToArray, hamming } from '@/algorithms/viterbi_encoder_decoder.ts'
 
 @Component
 export default class TrellisDiagram extends Vue {
@@ -206,7 +206,7 @@ export default class TrellisDiagram extends Vue {
       state: s,
       hamming: this.decoder.table[this.decoder.table.length - 2][s].hamming,
       output: this.decoder.graph[s].output[bit],
-      add_hamming: this.decoder.hamming(this.symbols[1], this.decoder.graph[s].output[bit])
+      add_hamming: hamming(this.symbols[1], this.decoder.graph[s].output[bit])
     }))
 
    return {

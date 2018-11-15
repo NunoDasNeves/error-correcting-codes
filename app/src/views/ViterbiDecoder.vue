@@ -44,16 +44,17 @@
           The error correcting capability of a convolutional code is <Math>$\lfloor\frac{d - 1}{2}\rfloor$</Math>, where <Math>$d$</Math> is the 'free distance' of the code.
           <p></p>
           The free distance is just the minimal Hamming Distance between all pairs of distinct sequences of output symbols that can be produced by the encoder.</br>
-          For example, consider this pair of possible output sequences:
-          <OutputBits :symbols='[[0,0,0],[0,0,0],[0,0,0]]' :highlight="false"/>
-          <OutputBits :symbols='[[1,0,1],[1,1,0],[1,1,1]]' :highlight="false"/>
-          The sequences start and end in the same encoder state <span class="bit-text">00</span>, and the Hamming Distance between them is 7.<br>
+          This metric gives some intuition about the maximum length of a 'burst' of errors that can still be reliably decoded.
           <p></p>
-          One way we can obtain <Math>$d$</Math> is by comparing all possible decoding paths to the all 0 path. We can illustrate this with a Trellis diagram showing all possible paths:
+          One way to obtain <Math>$d$</Math> is to compare all possible decoding paths to the path containing all <span class="bit-text">000</span>:<br>
           <p></p>
           <ErrorTrellis :encoder="error_trellis_encoder"/>
-          <AppButton @click.native="error_trellis_prev">< Prev</AppButton>
-          <AppButton @click.native="error_trellis_next">Next ></AppButton>
+          <AppButton @click.native="error_trellis_prev" :disabled="!error_trellis_prev_valid">< Prev</AppButton>
+          <AppButton @click.native="error_trellis_next" :disabled="!error_trellis_next_valid">Next ></AppButton>
+          <p></p>
+          Clearly the minimal distance is <Math>$d = 7$</Math>, so we can expect our code to reliably correct up to <Math>$\lfloor\frac{d - 1}{2}\rfloor = 3$</Math> errors relatively near to each other.
+          <p></p>
+          Note, however, that the possiblity of correcting a given set of errors in a stream is a function of both the code and the input, and deriving general metrics for allowed frequencies of erroneous symbols is non-trivial!
         </AppSpoiler>
 
         The encoder generates a binary stream, which we display here broken up into symbols of length <Math>$n$</Math>.<br>
@@ -164,17 +165,21 @@ export default class ViterbiDecoder extends Vue {
     return this.decoder.likely_decodings.map(binaryArrayToString)
   }
 
-  error_trellis_input_length: number = 5
-  error_trellis_input_num: number = 0xffffe
+  error_trellis_input_length: number = 6
+  error_trellis_input_num: number = 0xfc
   get error_trellis_input(): number[] { return numberToArray(this.error_trellis_input_num, this.error_trellis_input_length) }
   error_trellis_encoder: Encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
+  get error_trellis_next_valid(): boolean { return this.error_trellis_input_num > 0xe6 }
+  get error_trellis_prev_valid(): boolean { return this.error_trellis_input_num < 0xfc }
   error_trellis_next() {
-    this.error_trellis_input_num--
+    if (!this.error_trellis_next_valid) return
+    this.error_trellis_input_num -= 2
     this.error_trellis_encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
     this.error_trellis_encoder.encodeAndFlatten()
   }
   error_trellis_prev() {
-    this.error_trellis_input_num++
+    if (!this.error_trellis_prev_valid) return
+    this.error_trellis_input_num += 2
     this.error_trellis_encoder = new Encoder(3, 3, this.decoder_params.gen, this.error_trellis_input)
     this.error_trellis_encoder.encodeAndFlatten()
   }
@@ -188,7 +193,7 @@ export default class ViterbiDecoder extends Vue {
   randomize_errors() {
     const error_array: boolean[] = new Array<boolean>(this.decoder_params.input.length).fill(false)
     this.errors = error_array.reduce((acc:any, curr:boolean, i:number) => {
-      acc[i] = Boolean(Math.round(Math.random()*2/3))
+      acc[i] = Boolean(Math.round(Math.random()*3/5))
       return acc
     }, {})
   }

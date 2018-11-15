@@ -1,7 +1,7 @@
 <template>
   <div>
     <AppSvg
-      :width="STATE_LABEL_WIDTH + STATES_TRELLIS_GAP + (TRELLIS_RECT_SIZE + TRELLIS_HORIZ_GAP)*5 + MARGIN*2"
+      :width="STATE_LABEL_WIDTH + STATES_TRELLIS_GAP + (TRELLIS_RECT_SIZE + TRELLIS_HORIZ_GAP)*8 + MARGIN*2"
       :height="TRELLIS_OFFSET + states.length*(SQUARE_WIDTH + TRELLIS_VERT_GAP) - TRELLIS_VERT_GAP + MARGIN*2">
 
       <g :transform="`translate(${MARGIN},${MARGIN})`">
@@ -41,7 +41,7 @@
           v-for="_, s in states"
           :transform="`translate(${STATE_LABEL_WIDTH + STATES_TRELLIS_GAP/2},${TRELLIS_OFFSET + s*SQUARE_WIDTH*2})`">
           <rect
-              :width="6*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + STATES_TRELLIS_GAP/2" :height="SQUARE_WIDTH"
+              :width="STATES_TRELLIS_GAP + 6*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + TRELLIS_RECT_SIZE" :height="SQUARE_WIDTH"
               fill='var(--color-light-gray)'/>
         </g>
 
@@ -52,15 +52,15 @@
           <g
             :transform="`translate(${TRELLIS_RECT_SIZE + TRELLIS_HORIZ_GAP/2 - OUTPUT_LABEL_WIDTH},${-SMALL_LABEL_HEIGHT/4})`">
             <rect
-                :width="4*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + OUTPUT_LABEL_WIDTH*2" :height="SQUARE_WIDTH"
+                :width="5*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + OUTPUT_LABEL_WIDTH*2" :height="SQUARE_WIDTH"
                 fill='var(--color-gray)'/>
             <!-- 'encoded symbols' text -->
             <g
-              :transform="`translate(${2*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + OUTPUT_LABEL_WIDTH},${-SMALL_LABEL_HEIGHT/4})`">
+              :transform="`translate(${2*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + OUTPUT_LABEL_WIDTH},${-SMALL_LABEL_HEIGHT/2})`">
               <text
                 :style="`font-size:${FONT_SIZE_SMALL};`">
                 <tspan text-anchor="middle">
-                  symbols
+                  Hamming distance: {{ hamming }}
                 </tspan>
               </text>
             </g>
@@ -86,12 +86,11 @@
 
           </g>
 
-          <!-- trellis - just the actual trellis -->
+          <!-- trellis squares -->
           <g :transform="`translate(0, ${TRELLIS_OFFSET + SQUARE_WIDTH/2 - TRELLIS_RECT_SIZE/2})`">
 
-            <!-- table -->
             <g v-for="(entry, i) in encoder.states" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE)},0)`">
-              <!-- trellis labels -->
+              <!-- trellis squares -->
               <g v-for="(state, j) in states" :transform="`translate(0,${j*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
                 <rect
                     :width="TRELLIS_RECT_SIZE" :height="TRELLIS_RECT_SIZE"
@@ -105,16 +104,18 @@
                     <text fill="red" font-size="1.5em" ><tspan text-anchor="middle">X</tspan></text>
                 </g-->
               </g>
-
-              <!-- trellis links -->
-              <!--g v-for="(state, j) in entry" v-if="i > 0" :transform="`translate(0,${SMALL_LABEL_HEIGHT/2 + j*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
-                <polyline
-                  v-if="table[i-1][state.prev].hamming < Number.MAX_SAFE_INTEGER"
-                  :points="`0 0, ${-TRELLIS_HORIZ_GAP} ${(state.prev - j)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
-                  :stroke-dasharray="`${state.bit ? 'none' : DASH_ARRAY}`"
-                  stroke="black" stroke-width='2' fill='transparent'/>
-              </g-->
             </g>
+
+            <!-- trellis links -->
+            <g v-for="(link, i) in state_links" :transform="`translate(${i*(TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE) + TRELLIS_RECT_SIZE/2},0)`">
+              <g :transform="`translate(0,${TRELLIS_RECT_SIZE/2 + link.prev*(TRELLIS_VERT_GAP + SQUARE_WIDTH)})`">
+                <polyline
+                  :points="`0 0, ${TRELLIS_HORIZ_GAP + TRELLIS_RECT_SIZE} ${(link.next - link.prev)*(TRELLIS_VERT_GAP + SQUARE_WIDTH)}`"
+                  :stroke-dasharray="`${link.bit ? 'none' : DASH_ARRAY}`"
+                  stroke="black" stroke-width='2' fill='transparent'/>
+              </g>
+            </g>
+          </g>
 
           </g> <!-- trellis without output labels -->
 
@@ -128,7 +129,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import { Encoder, numberToArray } from '@/algorithms/viterbi_encoder_decoder.ts'
+import { Encoder, numberToArray, arrayToNumber, hamming } from '@/algorithms/viterbi_encoder_decoder.ts'
 
 @Component
 export default class ErrorTrellisDiagram extends Vue {
@@ -141,6 +142,25 @@ export default class ErrorTrellisDiagram extends Vue {
   // array of numbered states for convenience
   get states(): number[][] {
     return new Array<number>(this.N).fill(0).map((curr, i) => numberToArray(i, this.encoder.K - 1))
+  }
+
+  get hamming(): number {
+    const zeros: number[] = new Array<number>(this.encoder.n).fill(0)
+    return this.encoder.outputs.slice(0,this.state_links.length).reduce((acc: number, curr: number[]) => acc + hamming(zeros, curr), 0)
+  }
+
+  get state_links(): any[] {
+    const links: any = []
+    for (let i = 0; i < this.encoder.states.length - 1; ++i) {
+      const next: number = arrayToNumber(this.encoder.states[i+1].slice(1))
+      links.push({
+        prev: arrayToNumber(this.encoder.states[i].slice(1)),
+        next,
+        bit: this.encoder.states[i][0]
+      })
+      if (next === 0) return links
+    }
+    return links
   }
 
   SCALING_FACTOR: number = 2/3/this.N
