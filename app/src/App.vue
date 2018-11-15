@@ -1,12 +1,20 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/encoder/">Convolutional Encoder</router-link> |
-      <router-link to="/decoder/">Viterbi Decoder</router-link> |
-      <router-link to="/pagerank/">PageRank</router-link>
+      <ul>
+        <li><router-link to="/">Home</router-link></li>
+        <li>
+          <ul>
+            <li><router-link to="/encoder/">Convolutional Encoder</router-link></li>
+            <li><router-link to="/decoder/">Viterbi Decoder</router-link></li>
+            <li><router-link to="/pagerank/">PageRank</router-link></li>
+          </ul>
+        </li>
+      </ul>
     </div>
-    <router-view/>
+    <div id="content">
+      <router-view/>
+    </div>
   </div>
 </template>
 
@@ -38,26 +46,42 @@
   --border-thick: 2px solid rgba(160, 178, 178, 0.5);
   --box-shadow-active: 0px 0px 0px 1px #ddd;
   // font format
-  --header-1: 600 3rem /1.2 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-1-mobile: 600 2rem /1.1 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-2: 600 2.25rem /1.2 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-2-mobile: 600 1.625rem /1.2 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-3: 400 1.6rem /1.3 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-3-mobile: 400 1.4rem /1.2 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --header-4: 400 1.15rem /1.4 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --body-copy-1: 400 1rem /1.6 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --body-copy-2: 400 0.85rem /1.6 -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-monospace: monospace;
+  --font-default: -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  --header-1: 600 3rem /1.2 var(--font-default);
+  --header-1-mobile: 600 2rem /1.1 var(--font-default);
+  --header-2: 600 2.25rem /1.2 var(--font-default);
+  --header-2-mobile: 600 1.625rem /1.2 var(--font-default);
+  --header-3: 400 1.6rem /1.3 var(--font-default);
+  --header-3-mobile: 400 1.4rem /1.2 var(--font-default);
+  --header-4: 400 1.15rem /1.4 var(--font-default);
+  --body-copy-1: 400 1rem /1.6 var(--font-default);
+  --body-copy-2: 400 0.85rem /1.6 var(--font-default);
   --font-large: 40px;
   --font-large-mobile: 24px;
   --font-medium: 20px;
   --font-medium-mobile: 16px;
   --font-small: 16px;
   --font-small-mobile: 12px;
-  --font-monospace: monospace;
 }
 
 #app {
   background-color: var(--color-very-light-gray);
+  display:flex;
+}
+
+#nav, #content {
+  height:100%;
+  padding:10px;
+}
+
+#nav {
+  width:260px;
+}
+
+#nav li {
+  margin-left:20px;
 }
 
 html, body {
@@ -69,10 +93,10 @@ html, body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: rgba(0,0,0,.84);
+  color: var(--color-black);
   font-size: 16px;
   line-height: 1.9;
-  font-family: -apple-system, BlinkMacSystemFont, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: var(--font-default);
 }
 
 section {
