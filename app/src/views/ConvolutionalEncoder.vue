@@ -4,9 +4,9 @@
     <section>
 
       <div v-if="!encoder_started">
-        Convolutional encoding adds redundant information to a stream of bits in order to increase reliability in noisy communication channels.
+        Convolutional Codes add redundant information to a stream of bits in order to increase reliability in noisy communication channels.
         <p></p>
-        The <router-link :to="'/decoder/'">Viterbi Algorithm</router-link> can be used to restore the original bitstream up to a certain error rate.
+        The <router-link :to="{ name: 'decoder', params: {} }">Viterbi Algorithm</router-link> can be used to restore the original bitstream up to a certain error rate.
         <p></p>
         Type a short string to encode:
         <p></p>
@@ -90,7 +90,7 @@
 
         <EncoderDiagram :input="encoder.reg" :output="encoder.outputs[encoder.outputs.length - 1]" :gen="gen" :gen_colors="GEN_COLORS"/>
 
-        <AppButton :type="'warning'" @click.native="reset_encoder">Reset</AppButton>
+        <AppButton :type="'warning'" @click.native="reset_encoder"><< Reset</AppButton>
         <AppButton @click.native="encoder.next" :disabled="encoder.finished">Next Bit ></AppButton>
         <AppButton @click.native="() => { while(!encoder.finished) encoder.next(); }" :disabled="encoder.finished">Encode all >></AppButton>
         <p></p>

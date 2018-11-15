@@ -5,7 +5,7 @@
 
       <form v-if="!got_params && !decoder_started">
 
-        The Viterbi algorithm is an efficient way to accurately decode the message at the receiver in the presence of bit errors.
+        The Viterbi algorithm is a Dynamic Programming algorithm that can be used to efficiently decode <router-link :to="{ name: 'encoder', params: {} }">Convolutional Codes</router-link>.
 
         <p></p>
         Type a (short) input string:<br/>
