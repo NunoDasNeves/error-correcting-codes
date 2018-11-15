@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <h3>Convolutional Encoder</h3>
+    <h3 style="font-family:var(--font-monospace);">Convolutional Codes</h3>
     <section>
 
       <form v-if="!encoder_started">
@@ -144,9 +144,6 @@ export default class ConvolutionalEncoder extends Vue {
 </script>
 
 <style scoped lang="less">
-section {
-  background: var(--color-white);
-}
 .dot-list {
   margin-left: 20px;
 }

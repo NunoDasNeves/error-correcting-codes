@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <h3>Viterbi Decoder</h3>
+    <h3 style="font-family:var(--font-monospace);">Viterbi Algorithm</h3>
     <section>
 
       <form v-if="!got_params && !decoder_started">
@@ -170,7 +170,4 @@ export default class ViterbiDecoder extends Vue {
 </script>
 
 <style scoped lang="less">
-section {
-  background: var(--color-white);
-}
 </style>
